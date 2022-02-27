@@ -1,0 +1,17 @@
+# Do not use this configuration once setup is finished.
+# It is only intended for getting a Let's Encrypt cert, allowing the main config to work.
+
+events {
+    worker_connections 1024;
+}
+
+http {
+	server {
+	  listen 80;
+	  server_name {{ domain }};
+	  root {{ webroot }}/;
+
+	  location / {
+	  }
+	}
+}

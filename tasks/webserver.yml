@@ -1,0 +1,52 @@
+- name: Install webserver and miscellaneous networking packages
+  community.general.pacman:
+    name:
+      - bind
+      - ddclient
+      - nginx
+      - certbot
+      - certbot-nginx
+
+    state: present
+
+- name: Configure dynamic DNS
+  template:
+    src: ddclient.conf.j2
+    dest: /etc/ddclient/ddclient.conf
+
+- name: Enable dynamic DNS service
+  service:
+    name: ddclient
+    enabled: yes
+
+- name: Configure nameserver
+  template:
+    src: named/named.conf.j2
+    dest: /etc/named.conf
+  register: named_conf
+
+- name: Add nameserver zone
+  template:
+    src: named/local_zone.j2
+    dest: "/var/named/{{ domain }}"
+  register: named_conf
+
+- name: Enable nameserver service
+  service:
+    name: named
+    state: started
+    enabled: yes
+  when: named_conf.changed
+
+- name: Configure nginx
+  template:
+    src: nginx.conf.j2
+    dest: /etc/nginx/nginx.conf
+  register: nginx_conf
+
+- name: Enable nginx service
+  service:
+    name: nginx
+    state: restarted
+    enabled: yes
+  when: nginx_conf.changed

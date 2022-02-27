@@ -1,0 +1,33 @@
+- name: Install matrix packages
+  community.general.pacman:
+    name: matrix-synapse
+    state: present
+
+- name: Copy signing key
+  copy:
+    src: synapse/signing.key
+    dest: /etc/synapse/signing.key
+
+- name: Deploy matrix homeserver configuration
+  template:
+    src: synapse/homeserver.yaml.j2
+    dest: /etc/synapse/homeserver.yaml
+
+- name: Deploy matrix logging configuration
+  template:
+    src: synapse/log.config.j2
+    dest: /etc/synapse/log.config
+
+- name: Change systemd unit file to allow access to dataroot
+  lineinfile:
+    path: /usr/lib/systemd/system/synapse.service
+    insertafter: "^WorkingDirectory.*"
+    regexp: "^ReadWritePaths.*"
+    line: "ReadWritePaths={{ dataroot }}/synapse/"
+    state: present
+
+- name: Enable matrix service
+  service:
+    name: synapse
+    enabled: yes
+    state: started

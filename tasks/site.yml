@@ -1,0 +1,4 @@
+- name: Fetch site source
+  git:
+    dest: /srv/http/site
+    repo: "{{ site_repo }}"

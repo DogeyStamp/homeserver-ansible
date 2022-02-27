@@ -1,0 +1,96 @@
+# Package lists
+
+# Utilities
+util_pack:
+
+# Email address for Let's Encrypt and DNS
+email: dogeystamp@disroot.org
+
+# Could be sudo instead
+escalation_method: doas
+
+sshd_port: 2500
+
+domain: d.nerdpol.ovh
+
+# Username for unpriviledged user
+username: dogeystamp
+
+# Create an SFTP read-only user (leave blank to disable)
+sftp_ro_username: dogeystamp-mobile
+
+# Git repos (could be localhost if Gitea is installed)
+dots_repo: http://localhost:3000/dogeystamp/dots.git
+site_repo: http://localhost:3000/dogeystamp/website.git
+
+# Drive with all the data stored on it (should be separate from OS drive)
+# This is the raw partition, and not the mapped crypt device
+secondary_disk: /dev/sdb
+
+# Web root for nginx and other applications
+webroot: /srv/http
+
+# Data root
+dataroot: /var/www/data
+
+
+
+# Network settings (nameserver, address, etc.)
+
+# Forward DNS queries to
+dns_forward: 1.1.1.1
+
+# Local IP address subnet
+local_subnet: 192.168.0.0/24
+  
+# Static address of the server (locally)
+# Preferably have another one to SSH into with Ansible, as we change the IP midway
+# in connection.yml
+local_ip: 192.168.0.3
+
+# Connection interface for static IP
+interface: eth0
+
+
+
+# ACME variables
+
+acme_email: "{{ email }}"
+
+# Mediawiki farm variables
+
+# Internal names for the wikis, used for filenames and URLs
+wiki_names:
+  - wiki
+  - rw
+
+
+
+# Placeholders for secret vault
+
+
+ddclient_pass: secret
+
+
+
+# Gitea secrets
+lfs_jwt_secret: "secret"
+jwt_secret: "secret"
+
+
+
+# Mediawiki secrets
+
+wgUpgradeKey: "secret"
+
+# This should have the same amount of elements as wiki_names.
+wgSecretKey:
+  - "wiki_secret"
+  - "rw_secret"
+
+
+
+# Matrix Synapse secrets
+registration_shared_secret: "secret"
+macaroon_secret_key: "secret"
+form_secret: "secret"

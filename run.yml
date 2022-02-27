@@ -1,0 +1,23 @@
+---
+- hosts: all
+  become: yes
+
+  tasks:
+    - include_tasks: "tasks/{{ task }}.yml"
+      with_items:
+        - essential
+        - sys_config
+        - connection
+        - firewall
+        - sftp
+        - mail
+        - ssl
+        - webserver
+        - gitea
+        - wiki
+        - matrix
+        - site
+        - cronjobs
+        - user_config
+      loop_control:
+        loop_var: task

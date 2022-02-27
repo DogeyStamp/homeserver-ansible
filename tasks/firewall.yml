@@ -1,0 +1,35 @@
+- name: Install firewall packages
+  community.general.pacman:
+    name:
+      - ufw
+
+- name: Deny all ports
+  community.general.ufw:
+    policy: deny
+
+- name: Allow service ports
+  community.general.ufw:
+    rule: allow
+    port: "{{ item }}"
+    proto: tcp
+    state: enabled
+
+  with_items:
+    - "{{ sshd_port }}"
+    - http
+    - https
+
+- name: Allow DNS port to LAN
+  community.general.ufw:
+    rule: allow
+    port: 53
+    proto: any
+    state: enabled
+    src: "{{ local_subnet }}"
+
+
+- name: Enable firewall service
+  service:
+    name: ufw
+    state: started
+    enabled: yes

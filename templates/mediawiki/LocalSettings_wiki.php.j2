@@ -1,0 +1,23 @@
+<?php
+
+if ( !defined( 'MEDIAWIKI' ) ) {
+     exit;
+}
+
+$wgSitename = "Bepp Wiki";
+$wgMetaNamespace = "Bepp_Wiki";
+
+$wgScriptPath = "/wiki";
+$wgResourceBasePath = $wgScriptPath;
+
+$wgLogos = [ '1x' => "$wgResourceBasePath/resources/assets/bepp.png" ];
+
+$wgDBname = "bepp_wiki";
+
+$wgSecretKey = "{{ wgSecretKey[item.0] }}";
+
+$wgGroupPermissions['*']['createaccount'] = false;
+$wgGroupPermissions['*']['edit'] = false;
+$wgGroupPermissions['*']['read'] = false;
+
+$wgDefaultSkin = "vector";

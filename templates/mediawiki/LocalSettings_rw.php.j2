@@ -1,0 +1,21 @@
+<?php
+if ( !defined( 'MEDIAWIKI' ) ) {
+	exit;
+}
+$wgSitename = "Rockwell Wiki";
+$wgMetaNamespace = "Rockwell_Wiki";
+
+$wgScriptPath = "/rw";
+$wgResourceBasePath = $wgScriptPath;
+
+$wgLogos = [ '1x' => "$wgResourceBasePath/resources/assets/rw.png" ];
+
+$wgDBname = "rw_wiki";
+
+$wgSecretKey = "{{ wgSecretKey[item.0] }}";
+
+$wgGroupPermissions['*']['createaccount'] = false;
+$wgGroupPermissions['*']['edit'] = false;
+$wgGroupPermissions['*']['read'] = false;
+
+$wgDefaultSkin = "timeless";

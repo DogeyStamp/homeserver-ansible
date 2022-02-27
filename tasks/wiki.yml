@@ -1,0 +1,79 @@
+- name: Install wiki packages
+  community.general.pacman:
+    name:
+      - mediawiki
+      - php-fpm
+      - php-intl
+      - php-sqlite
+      - imagemagick
+
+    state: present
+
+- name: Symlink wikis into web root
+  file:
+    src: /usr/share/webapps/mediawiki
+    dest: "{{ webroot }}/{{ item }}"
+    state: link
+  with_items: "{{ wiki_names }}"
+
+- name: Deploy wiki-farm main configuration file
+  template:
+    src: mediawiki/LocalSettings.php.j2
+    dest: "{{ webroot }}/{{ wiki_names[0] }}/LocalSettings.php"
+
+- name: Deploy configuration files for individual wikis
+  template:
+    src: "mediawiki/LocalSettings_{{ item.1 }}.php.j2"
+    dest: "{{ webroot }}/{{ wiki_names[0] }}/LocalSettings_{{ item.1 }}.php"
+  with_indexed_items: "{{ wiki_names }}"
+
+- name: Copy wiki logo files
+  copy:
+    src: "{{ item }}"
+    dest: "{{ webroot }}/{{ wiki_names[0] }}/resources/assets/"
+  with_fileglob:
+    - mediawiki/logos/*.png
+
+- name: Enable iconv extension
+  lineinfile:
+    dest: /etc/php/php.ini
+    regexp: "^;extension=iconv"
+    line: "extension=iconv"
+  register: php_config
+
+- name: Enable intl extension
+  lineinfile:
+    dest: /etc/php/php.ini
+    regexp: "^;extension=intl"
+    line: "extension=intl"
+  register: php_config
+
+- name: Enable sqlite3 extension
+  lineinfile:
+    dest: /etc/php/php.ini
+    regexp: "^;extension=sqlite3"
+    line: "extension=sqlite3"
+  register: php_config
+
+- name: Enable pd_sqlite extension
+  lineinfile:
+    dest: /etc/php/php.ini
+    regexp: "^;extension=pdo_sqlite"
+    line: "extension=pdo_sqlite"
+  register: php_config
+
+- name: Change systemd unit file to allow access to dataroot
+  lineinfile:
+    path: /usr/lib/systemd/system/php-fpm.service
+    insertafter: "^PrivateDevices.*"
+    regexp: "^ReadWritePaths.*"
+    line: "ReadWritePaths={{ dataroot }}/mediawiki/"
+    state: present
+  register: php_config
+
+- name: Enable php service
+  service:
+    name: php-fpm
+    enabled: yes
+    state: restarted
+  when: php_config.changed

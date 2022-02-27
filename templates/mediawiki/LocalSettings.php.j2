@@ -1,0 +1,108 @@
+<?php
+if ( !defined( 'MEDIAWIKI' ) ) {
+	exit;
+}
+
+$callingurl = strtolower( $_SERVER['REQUEST_URI'] ); // get the calling url
+if ( strpos( $callingurl, '/{{ wiki_names[0] }}' )  === 0 ) {
+        require_once 'LocalSettings_{{ wiki_names[0] }}.php';
+}
+{%- for extra_wiki in wiki_names[1:] %}
+elseif ( strpos( $callingurl, '/{{ extra_wiki }}' ) === 0 ) {
+        require_once 'LocalSettings_{{ extra_wiki }}.php';
+{% endfor %}
+} else {
+        header( 'HTTP/1.1 404 Not Found' );
+        echo "This wiki (\"" . htmlspecialchars( $callingurl ) . "\") is not available. Check configuration.";
+        exit( 0 );
+}
+
+$wgServer = "https://{{ domain }}";
+
+$wgEnableEmail = false;
+$wgEnableUserEmail = true; # UPO
+
+$wgEmergencyContact = "apache@🌻.invalid";
+$wgPasswordSender = "apache@🌻.invalid";
+
+$wgEnotifUserTalk = false; # UPO
+$wgEnotifWatchlist = false; # UPO
+$wgEmailAuthentication = true;
+
+$wgDBtype = "sqlite";
+$wgDBserver = "";
+$wgDBuser = "";
+$wgDBpassword = "";
+
+$wgSQLiteDataDir = "{{ dataroot }}/mediawiki";
+$wgObjectCaches[CACHE_DB] = [
+	'class' => SqlBagOStuff::class,
+	'loggroup' => 'SQLBagOStuff',
+	'server' => [
+		'type' => 'sqlite',
+		'dbname' => 'wikicache',
+		'tablePrefix' => '',
+		'variables' => [ 'synchronous' => 'NORMAL' ],
+		'dbDirectory' => $wgSQLiteDataDir,
+		'trxMode' => 'IMMEDIATE',
+		'flags' => 0
+	]
+];
+$wgLocalisationCacheConf['storeServer'] = [
+	'type' => 'sqlite',
+	'dbname' => "{$wgDBname}_l10n_cache",
+	'tablePrefix' => '',
+	'variables' => [ 'synchronous' => 'NORMAL' ],
+	'dbDirectory' => $wgSQLiteDataDir,
+	'trxMode' => 'IMMEDIATE',
+	'flags' => 0
+];
+$wgJobTypeConf['default'] = [
+	'class' => 'JobQueueDB',
+	'claimTTL' => 3600,
+	'server' => [
+		'type' => 'sqlite',
+		'dbname' => "{$wgDBname}_jobqueue",
+		'tablePrefix' => '',
+		'variables' => [ 'synchronous' => 'NORMAL' ],
+		'dbDirectory' => $wgSQLiteDataDir,
+		'trxMode' => 'IMMEDIATE',
+		'flags' => 0
+	]
+];
+
+$wgSharedTables[] = "actor";
+$wgMainCacheType = CACHE_NONE;
+$wgMemCachedServers = [];
+
+$wgEnableUploads = true;
+$wgUseImageMagick = true;
+$wgImageMagickConvertCommand = "/usr/bin/convert";
+
+$wgUseInstantCommons = false;
+
+$wgPingback = false;
+
+$wgShellLocale = "C.UTF-8";
+
+$wgLanguageCode = "en";
+
+$wgLocaltimezone = "UTC";
+
+$wgAuthenticationTokenVersion = "1";
+
+$wgUpgradeKey = "{{ wgUpgradeKey }}";
+
+$wgRightsPage = "";
+$wgRightsUrl = "";
+$wgRightsText = "";
+$wgRightsIcon = "";
+
+$wgDiff3 = "/usr/bin/diff3";
+
+wfLoadSkin( 'MonoBook' );
+wfLoadSkin( 'Timeless' );
+wfLoadSkin( 'Vector' );
+
+wfLoadExtension( 'WikiEditor' );
+wfLoadExtension( 'Poem' );

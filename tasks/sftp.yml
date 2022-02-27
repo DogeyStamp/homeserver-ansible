@@ -1,0 +1,15 @@
+- name: Create sftp read group
+  group:
+    name: sftpr
+
+- name: Create sftp read-only user
+  user:
+    name: "{{ sftp_ro_username }}"
+    groups:
+      - sftpr
+
+- name: Deploy SSH key to sftp user
+  ansible.posix.authorized_key:
+    user: "{{ sftp_ro_username }}"
+    state: present
+    key: "{{ lookup('file', '~/.ssh/keys/{{ ansible_hostname }}_sftp.pub')}}"

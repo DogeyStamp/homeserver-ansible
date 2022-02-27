@@ -1,0 +1,28 @@
+- name: Install NetworkManager
+  community.general.pacman:
+    name:
+      - networkmanager
+
+- name: Enable NetworkManager
+  service:
+    name: NetworkManager
+    enabled: yes
+    state: started
+
+- name: Disable existing eth0 connection
+  community.general.nmcli:
+    conn_name: eth0
+    state: absent
+  register: networkmanager_config
+
+- name: Set static IP address
+  community.general.nmcli:
+    dns4: "{{ dns_forward }}"
+    dns4_ignore_auto: yes
+    ip4: "{{ local_ip }}"
+    method4: manual
+    state: present
+    conn_name: wired
+    ifname: "{{ interface }}"
+    type: ethernet
+  when: networkmanager_config.changed
