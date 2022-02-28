@@ -18,6 +18,8 @@
     - "{{ sshd_port }}"
     - http
     - https
+    # Matrix federation port
+    - 8448
 
 - name: Allow DNS port to LAN
   community.general.ufw:
