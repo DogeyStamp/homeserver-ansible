@@ -3,16 +3,11 @@
     name: gitea
     state: present
 
-- name: Ensure gitea is stopped
-  service:
-    name: gitea
-    state: stopped
-
 - name: Configure gitea
   template:
     src: templates/gitea_app.ini.j2
     dest: /etc/gitea/app.ini
-  register: gitea_conf
+  notify: Restart gitea
 
 - name: Change systemd unit file to allow access to dataroot
   lineinfile:
@@ -21,17 +16,21 @@
     regexp: "^ReadWritePaths.*"
     line: "ReadWritePaths={{ dataroot }}/gitea/"
     state: present
-  register: gitea_conf
+  notify: Restart gitea
+
+- name: Ensure gitea is stopped
+  service:
+    name: gitea
+    state: stopped
 
 - name: Change homedir of gitea
   user:
     name: gitea
     home: "{{ dataroot }}/gitea/"
-  register: gitea_conf
+  notify: Restart gitea
 
 - name: Enable gitea
   service:
     name: gitea
-    state: restarted
+    state: started
     enabled: yes
-  when: gitea_conf.changed

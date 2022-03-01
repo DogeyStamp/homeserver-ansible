@@ -1,12 +1,7 @@
-- name: Install webserver and miscellaneous networking packages
+- name: Ensure nginx is installed
   community.general.pacman:
-    name:
-      - bind
-      - ddclient
-      - firewalld
-      - nginx
-      - certbot
-      - certbot-nginx
+    name: nginx
+    state: present
 
 - name: Create directories for ACME
   file:
@@ -42,7 +37,7 @@
   register: result
   when: cert_file.stat.exists
 
-- name: Determine whether certificate should be regenerated
+- name: Determine whethe certificate should be regenerated
   set_fact:
     cert_regen: yes
   when: not cert_file.stat.exists or result.expired | bool
@@ -53,7 +48,7 @@
     dest: /etc/nginx/nginx.conf
   when: cert_regen is defined
 
-- name: Enable nginx service
+- name: Restart nginx service
   service:
     name: nginx
     state: restarted

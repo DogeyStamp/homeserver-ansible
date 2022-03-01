@@ -1,5 +1,3 @@
-files/synapse/signing.key
-files/k5e
+*.secret
 host_vars
 hosts
-

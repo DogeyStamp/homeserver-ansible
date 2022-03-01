@@ -1,4 +1,4 @@
-- name: Install NetworkManager
+- name: Install packages
   community.general.pacman:
     name:
       - networkmanager
@@ -26,3 +26,10 @@
     ifname: "{{ interface }}"
     type: ethernet
   when: networkmanager_config.changed
+
+- name: Cronjob to remove externally managed eth0 connection
+  cron:
+    name: "Ensure eth0 is not externally managed"
+    minute: "*/10"
+    job: "/usr/bin/nmcli connection down eth0 > /dev/null 2>&1; /usr/bin/nmcli connection down wired > /dev/null 2>&1; /usr/bin/nmcli connection up wired > /dev/null"
+    state: present

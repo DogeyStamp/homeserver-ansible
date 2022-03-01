@@ -1,23 +1,42 @@
 ---
-- hosts: all
+- hosts: sv
   become: yes
 
-  tasks:
-    - include_tasks: "tasks/{{ task }}.yml"
-      with_items:
-        - essential
-        - sys_config
-        - connection
-        - firewall
-        - sftp
-        - mail
-        - ssl
-        - webserver
-        - gitea
-        - wiki
-        - matrix
-        - site
-        - cronjobs
-        - user_config
-      loop_control:
-        loop_var: task
+  roles:
+    - role: system
+
+    - role: dotfiles
+      when: enable_dotfiles
+
+    - role: filesystems
+      when: enable_filesystems
+
+    - role: networking/connection
+      when: enable_connection
+
+    - role: networking/ddclient
+      when: enable_ddclient
+
+    - role: networking/nameserver
+      when: enable_nameserver
+
+    - role: networking/ssl
+      when: enable_ssl
+
+    - role: services/gitea
+      when: enable_gitea
+
+    - role: services/wiki
+      when: enable_wiki
+
+    - role: services/synapse
+      when: enable_synapse
+
+    - role: services/website
+      when: enable_website
+
+    - role: services/sftp
+      when: enable_sftpr
+
+    - role: services/mail
+      when: enable_mail

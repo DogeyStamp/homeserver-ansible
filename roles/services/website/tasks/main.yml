@@ -1,4 +1,4 @@
 - name: Fetch site source
   git:
-    dest: /srv/http/site
+    dest: "{{ webroot }}/site"
     repo: "{{ site_repo }}"

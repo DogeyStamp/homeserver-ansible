@@ -1,7 +1,13 @@
-# Package lists
+# Do not edit this directly.
+#
+# Use
+#  group_vars/inventory_name/vars.yml
+#  host_vars/your_hostname/vars.yml
+# for plaintext variables.
+#
+# For secrets, use the same paths with vault.yml instead of vars.yml.
 
-# Utilities
-util_pack:
+### Misc settings
 
 # Email address for Let's Encrypt and DNS
 email: dogeystamp@disroot.org
@@ -10,8 +16,6 @@ email: dogeystamp@disroot.org
 escalation_method: doas
 
 sshd_port: 2500
-
-domain: d.nerdpol.ovh
 
 # Username for unpriviledged user
 username: dogeystamp
@@ -33,9 +37,24 @@ webroot: /srv/http
 # Data root
 dataroot: /var/www/data
 
+# Extra packages
+util_pack:
+  - neovim
+  - neofetch
+  - fish
+  - htop
+  - tmux
+  - git
+  - cronie
+  - progress
+  - rsync
+  - man-db
 
 
-# Network settings (nameserver, address, etc.)
+
+### Network settings (nameserver, address, etc.)
+
+domain: d.nerdpol.ovh
 
 # Forward DNS queries to
 dns_forward: 1.1.1.1
@@ -51,13 +70,12 @@ local_ip: 192.168.0.3
 # Connection interface for static IP
 interface: eth0
 
-
-
-# ACME variables
-
+# Email to send renewal notices to
 acme_email: "{{ email }}"
 
-# Mediawiki farm variables
+
+
+### Mediawiki farm variables
 
 # Internal names for the wikis, used for filenames and URLs
 wiki_names:
@@ -66,31 +84,65 @@ wiki_names:
 
 
 
-# Placeholders for secret vault
+### Placeholders for secret vault (change these in host_vars/your_hostname/vault.yml)
 
-
-ddclient_pass: secret
-
-
+ddclient_pass: "secret"
 
 # Gitea secrets
 lfs_jwt_secret: "secret"
 jwt_secret: "secret"
 
-
-
 # Mediawiki secrets
-
 wgUpgradeKey: "secret"
-
 # This should have the same amount of elements as wiki_names.
 wgSecretKey:
   - "wiki_secret"
   - "rw_secret"
 
-
-
 # Matrix Synapse secrets
 registration_shared_secret: "secret"
 macaroon_secret_key: "secret"
 form_secret: "secret"
+
+
+
+### Role switches
+
+# Dotfile deployment
+enable_dotfiles: yes
+
+# LUKS crypto and filesystem mounts
+enable_filesystems: yes
+
+# Firewall (UFW)
+enable_firewall: yes
+
+# Use NetworkManager to configure a proper static IP address in LAN
+enable_connection: yes
+
+# Dynamic DNS client
+enable_ddclient: yes
+
+# Nameserver (if you can't do NAT hairpinning)
+enable_nameserver: yes
+
+# SSL ACME (Let's Encrypt)
+enable_ssl: yes
+
+# Git server
+enable_gitea: yes
+
+# Matrix server
+enable_synapse: yes
+
+# MediaWiki
+enable_wiki: yes
+
+# Personal website
+enable_website: yes
+
+# SFTP read-only user
+enable_sftpr: yes
+
+# Mailserver (local only)
+enable_mail: yes

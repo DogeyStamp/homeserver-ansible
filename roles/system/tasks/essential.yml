@@ -1,0 +1,39 @@
+- name: Change hostname
+  hostname:
+    name: "{{ inventory_hostname }}"
+
+- name: Set MOTD
+  template:
+    src: motd.j2
+    dest: /etc/motd
+
+- name: Update packages
+  community.general.pacman:
+    update_cache: yes
+    upgrade: yes
+
+- name: Install utility packages
+  community.general.pacman:
+    name: "{{ util_pack }}"
+    state: present
+
+- name: Disable root login
+  user:
+    name: root
+    password: "*"
+
+- name: Create unpriviledged user
+  user:
+    name: "{{ username }}"
+
+- name: Deploy SSH key to unpriviledged user
+  ansible.posix.authorized_key:
+    user: "{{ username }}"
+    state: present
+    key: "{{ lookup('file', '~/.ssh/keys/{{ ansible_hostname }}.pub')}}"
+
+- name: Enable cron daemon
+  service:
+    name: cronie
+    state: started
+    enabled: yes

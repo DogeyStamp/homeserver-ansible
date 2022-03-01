@@ -1,4 +1,0 @@
-- name: Set MOTD
-  template:
-    src: motd.j2
-    dest: /etc/motd

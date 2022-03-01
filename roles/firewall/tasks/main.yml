@@ -1,9 +1,9 @@
-- name: Install firewall packages
+- name: Install packages
   community.general.pacman:
     name:
       - ufw
 
-- name: Deny all ports
+- name: Deny all ports by default
   community.general.ufw:
     policy: deny
 
@@ -28,7 +28,6 @@
     proto: any
     state: enabled
     src: "{{ local_subnet }}"
-
 
 - name: Enable firewall service
   service:

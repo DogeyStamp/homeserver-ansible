@@ -5,17 +5,17 @@
 
 - name: Copy signing key
   copy:
-    src: synapse/signing.key
+    src: signing.key.secret
     dest: /etc/synapse/signing.key
 
 - name: Deploy matrix homeserver configuration
   template:
-    src: synapse/homeserver.yaml.j2
+    src: homeserver.yaml.j2
     dest: /etc/synapse/homeserver.yaml
 
 - name: Deploy matrix logging configuration
   template:
-    src: synapse/log.config.j2
+    src: log.config.j2
     dest: /etc/synapse/log.config
 
 - name: Change systemd unit file to allow access to dataroot

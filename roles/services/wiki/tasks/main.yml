@@ -18,12 +18,12 @@
 
 - name: Deploy wiki-farm main configuration file
   template:
-    src: mediawiki/LocalSettings.php.j2
+    src: LocalSettings.php.j2
     dest: "{{ webroot }}/{{ wiki_names[0] }}/LocalSettings.php"
 
 - name: Deploy configuration files for individual wikis
   template:
-    src: "mediawiki/LocalSettings_{{ item.1 }}.php.j2"
+    src: "LocalSettings_{{ item.1 }}.php.j2"
     dest: "{{ webroot }}/{{ wiki_names[0] }}/LocalSettings_{{ item.1 }}.php"
   with_indexed_items: "{{ wiki_names }}"
 
@@ -32,7 +32,7 @@
     src: "{{ item }}"
     dest: "{{ webroot }}/{{ wiki_names[0] }}/resources/assets/"
   with_fileglob:
-    - mediawiki/logos/*.png
+    - logos/*.png
 
 - name: Enable iconv extension
   lineinfile:
