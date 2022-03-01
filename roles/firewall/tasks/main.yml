@@ -7,27 +7,40 @@
   community.general.ufw:
     policy: deny
 
-- name: Allow service ports
+- name: Allow Matrix federation port
+  community.general.ufw:
+    rule: allow
+    port: 8448
+    proto: tcp
+    state: enabled
+  when: enable_synapse
+
+- name: Allow http/https ports
   community.general.ufw:
     rule: allow
     port: "{{ item }}"
     proto: tcp
     state: enabled
-
+  when: enable_webserver
   with_items:
-    - "{{ sshd_port }}"
     - http
     - https
-    # Matrix federation port
-    - 8448
+
+- name: Allow ssh port
+  community.general.ufw:
+    rule: allow
+    port: "{{ sshd_port }}"
+    proto: tcp
+    state: enabled
 
 - name: Allow DNS port to LAN
   community.general.ufw:
     rule: allow
-    port: 53
+    port: domain
     proto: any
     state: enabled
     src: "{{ local_subnet }}"
+  when: enable_nameserver
 
 - name: Enable firewall service
   service:
