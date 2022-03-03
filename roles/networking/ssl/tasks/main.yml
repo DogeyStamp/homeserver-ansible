@@ -1,6 +1,10 @@
-- name: Ensure nginx is installed
+- name: Ensure relevant packages are installed
   community.general.pacman:
-    name: nginx
+    name:
+      - nginx
+      - certbot
+      - certbot-nginx
+
     state: present
 
 - name: Create directories for ACME
@@ -37,7 +41,7 @@
   register: result
   when: cert_file.stat.exists
 
-- name: Determine whethe certificate should be regenerated
+- name: Determine whether the certificate should be regenerated
   set_fact:
     cert_regen: yes
   when: not cert_file.stat.exists or result.expired | bool

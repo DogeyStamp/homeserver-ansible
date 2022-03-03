@@ -18,6 +18,20 @@
     state: present
   notify: Restart gitea
 
+- name: Find owner of data folder
+  stat:
+    path: "{{ dataroot }}/gitea/"
+  register: data_folder
+
+- name: Ensure data folder is under correct owner
+  file:
+    path: "{{ dataroot }}/gitea/"
+    state: directory
+    recurse: yes
+    owner: gitea
+    group: gitea
+  when: data_folder.stat.pw_name != "gitea"
+
 - name: Ensure gitea is stopped
   service:
     name: gitea

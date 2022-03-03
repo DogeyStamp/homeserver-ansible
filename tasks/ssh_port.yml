@@ -1,0 +1,42 @@
+- name: Set default user for SSH
+  set_fact:
+    ansible_user: "{{ admin_username }}"
+
+- name: Attempt ssh connection
+  become: no
+  wait_for_connection:
+    timeout: 10
+  ignore_errors: true
+  register: ssh_result_default
+
+- name: Set ssh to fallback port
+  set_fact:
+    ansible_ssh_port: 22
+  when:
+    - ssh_result_default is failed
+
+- name: Attempt ssh connection
+  become: no
+  wait_for_connection:
+    timeout: 10
+  ignore_errors: true
+  register: ssh_result_port
+  when:
+    - ssh_result_default is failed
+
+- name: Set ssh to fallback port and default Arch Linux ARM credentials
+  set_fact:
+    ansible_ssh_port: "22"
+    ansible_user: "alarm"
+    ansible_ssh_password: "alarm"
+  when:
+    - ssh_result_default is failed
+    - ssh_result_port is failed
+
+- name: Attempt ssh connection
+  become: no
+  wait_for_connection:
+    timeout: 10
+  when:
+    - ssh_result_default is failed
+    - ssh_result_port is failed

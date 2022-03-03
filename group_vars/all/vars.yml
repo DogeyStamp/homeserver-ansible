@@ -17,6 +17,9 @@ escalation_method: doas
 
 sshd_port: 2500
 
+# Username for the priviledged user
+admin_username: maestro
+
 # Username for unpriviledged user
 username: dogeystamp
 
@@ -128,6 +131,9 @@ enable_nameserver: yes
 
 # SSL ACME (Let's Encrypt)
 enable_ssl: yes
+
+# nginx: necessary for gitea, synapse, wiki, and website.
+enable_webserver: yes
 
 # Git server
 enable_gitea: yes

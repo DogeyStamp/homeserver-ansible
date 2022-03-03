@@ -7,16 +7,19 @@
   copy:
     src: signing.key.secret
     dest: /etc/synapse/signing.key
+  notify: Restart synapse
 
 - name: Deploy matrix homeserver configuration
   template:
     src: homeserver.yaml.j2
     dest: /etc/synapse/homeserver.yaml
+  notify: Restart synapse
 
 - name: Deploy matrix logging configuration
   template:
     src: log.config.j2
     dest: /etc/synapse/log.config
+  notify: Restart synapse
 
 - name: Change systemd unit file to allow access to dataroot
   lineinfile:
@@ -25,6 +28,22 @@
     regexp: "^ReadWritePaths.*"
     line: "ReadWritePaths={{ dataroot }}/synapse/"
     state: present
+  notify: Restart synapse
+
+- name: Find owner of data folder
+  stat:
+    path: "{{ dataroot }}/synapse/"
+  register: data_folder
+
+- name: Ensure data folder is under correct owner
+  file:
+    path: "{{ dataroot }}/synapse/"
+    state: directory
+    recurse: yes
+    owner: synapse
+    group: synapse
+  when: data_folder.stat.pw_name != "synapse"
+  notify: Restart synapse
 
 - name: Enable matrix service
   service:

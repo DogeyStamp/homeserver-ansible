@@ -2,17 +2,23 @@
 - hosts: sv
   become: yes
 
+  gather_facts: no
+
+  pre_tasks:
+    - import_tasks: tasks/set_host.yml
+    - import_tasks: tasks/ssh_port.yml
+
   roles:
     - role: system
-
-    - role: dotfiles
-      when: enable_dotfiles
-
+    
     - role: filesystems
       when: enable_filesystems
 
     - role: networking/connection
       when: enable_connection
+
+    - role: firewall
+      when: enable_firewall
 
     - role: networking/ddclient
       when: enable_ddclient
@@ -20,8 +26,17 @@
     - role: networking/nameserver
       when: enable_nameserver
 
+    - role: services/sftp
+      when: enable_sftpr
+
+    - role: services/mail
+      when: enable_mail
+
     - role: networking/ssl
       when: enable_ssl
+
+    - role: services/webserver
+      when: enable_webserver
 
     - role: services/gitea
       when: enable_gitea
@@ -35,8 +50,5 @@
     - role: services/website
       when: enable_website
 
-    - role: services/sftp
-      when: enable_sftpr
-
-    - role: services/mail
-      when: enable_mail
+    - role: dotfiles
+      when: enable_dotfiles

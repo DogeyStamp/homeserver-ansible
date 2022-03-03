@@ -12,6 +12,16 @@
     update_cache: yes
     upgrade: yes
 
+- name: Determine if reboot for kernel update is needed
+  shell:
+    cmd: "if [[ $(pacman -Q linux | cut -d \" \" -f 2) > $(uname -r) ]]; then echo reboot; fi"
+  register: reboot_check
+
+- name: Reboot for kernel update
+  reboot:
+  when:
+    reboot_check.stdout == "reboot"
+
 - name: Install utility packages
   community.general.pacman:
     name: "{{ util_pack }}"
@@ -30,7 +40,7 @@
   ansible.posix.authorized_key:
     user: "{{ username }}"
     state: present
-    key: "{{ lookup('file', '~/.ssh/keys/{{ ansible_hostname }}.pub')}}"
+    key: "{{ lookup('file', '~/.ssh/keys/{{ inventory_hostname }}.pub')}}"
 
 - name: Enable cron daemon
   service:
