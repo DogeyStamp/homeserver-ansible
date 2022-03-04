@@ -64,6 +64,9 @@ dns_forward: 1.1.1.1
 
 # Local IP address subnet
 local_subnet: 192.168.0.0/24
+
+# CIDR prefix
+subnet_prefix: /24
   
 # Static address of the server (locally)
 # Preferably have another one to SSH into with Ansible, as we change the IP midway

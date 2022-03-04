@@ -42,7 +42,7 @@
   community.general.nmcli:
     dns4: "{{ dns_forward }}"
     dns4_ignore_auto: yes
-    ip4: "{{ local_ip }}"
+    ip4: "{{ local_ip }}{{ subnet_prefix }}"
     method4: manual
     state: present
     conn_name: wired
