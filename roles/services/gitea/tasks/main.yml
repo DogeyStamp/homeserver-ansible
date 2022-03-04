@@ -9,6 +9,10 @@
     dest: /etc/gitea/app.ini
   notify: Restart gitea
 
+- name: Set data path
+  set_fact:
+    data_path: "{{ dataroot }}/gitea/"
+
 - name: Change systemd unit file to allow access to dataroot
   lineinfile:
     path: /usr/lib/systemd/system/gitea.service
@@ -20,28 +24,36 @@
 
 - name: Find owner of data folder
   stat:
-    path: "{{ dataroot }}/gitea/"
+    path: "{{ data_path }}"
   register: data_folder
 
 - name: Ensure data folder is under correct owner
   file:
-    path: "{{ dataroot }}/gitea/"
+    path: "{{ data_path }}"
     state: directory
     recurse: yes
     owner: gitea
     group: gitea
   when: data_folder.stat.pw_name != "gitea"
 
+- name: Get gitea user information
+  user:
+    name: gitea
+    state: present
+  register: gitea_user
+
 - name: Ensure gitea is stopped
   service:
     name: gitea
     state: stopped
+  when: gitea_user.home != data_path[:-1]
 
 - name: Change homedir of gitea
   user:
     name: gitea
-    home: "{{ dataroot }}/gitea/"
+    home: "{{ data_path }}"
   notify: Restart gitea
+  when: gitea_user.home != data_path[:-1]
 
 - name: Enable gitea
   service:

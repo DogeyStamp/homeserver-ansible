@@ -49,6 +49,7 @@
     ifname: "{{ interface }}"
     type: ethernet
   register: nmcli_conf
+  changed_when: false
   poll: 0
   async: 1000
 
