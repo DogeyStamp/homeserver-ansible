@@ -12,4 +12,4 @@
   service:
     name: ddclient
     enabled: yes
-    started: yes
+    state: started
