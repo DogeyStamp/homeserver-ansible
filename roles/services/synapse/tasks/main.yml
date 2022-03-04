@@ -8,6 +8,7 @@
     src: signing.key.secret
     dest: /etc/synapse/signing.key
   notify: Restart synapse
+  ignore_errors: true
 
 - name: Deploy matrix homeserver configuration
   template:
