@@ -16,6 +16,7 @@
   shell:
     cmd: "if [[ $(pacman -Q linux | cut -d \" \" -f 2) > $(uname -r) ]]; then echo reboot; fi"
   register: reboot_check
+  changed_when: reboot_check.stdout == "reboot"
 
 - name: Reboot for kernel update
   reboot:

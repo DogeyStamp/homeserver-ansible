@@ -7,6 +7,7 @@
   pre_tasks:
     - import_tasks: tasks/set_host.yml
     - import_tasks: tasks/ssh_port.yml
+    - import_tasks: tasks/bootstrap.yml
 
   roles:
     - role: system
