@@ -73,6 +73,9 @@ subnet_prefix: /24
 # in connection.yml
 local_ip: 192.168.0.3
 
+# Gateway address (this is your router's IP)
+gateway: 192.168.0.1
+
 # Connection interface for static IP
 interface: eth0
 
