@@ -29,7 +29,9 @@
     regexp: "^ReadWritePaths.*"
     line: "ReadWritePaths={{ dataroot }}/synapse/"
     state: present
-  notify: Restart synapse
+  notify: 
+    - Run daemon-reload for synapse
+    - Restart synapse
 
 - name: Find owner of data folder
   stat:
