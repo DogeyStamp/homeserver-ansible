@@ -7,20 +7,14 @@ options {
     pid-file "/run/named/named.pid";
     forwarders { {{ dns_forward }}; };
 
-    // Uncomment these to enable IPv6 connections support
-    // IPv4 will still work:
-    //  listen-on-v6 { any; };
-    // Add this for no IPv4:
-    //  listen-on { none; };
+    listen-on { any; };
 
     recursion yes;
+    allow-recursion { any; };
     allow-query { internals; };
     allow-transfer { none; };
-    dnssec-validation auto;
-    allow-update { none; };
-    version none;
-    hostname none;
-    server-id none;
+    dnssec-validation no;
+    resolver-query-timeout 30000;
 };
 
 zone "localhost" IN {
