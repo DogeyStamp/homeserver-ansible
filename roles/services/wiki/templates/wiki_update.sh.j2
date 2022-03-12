@@ -1,0 +1,9 @@
+#!/bin/sh
+
+cd /usr/share/webapps/mediawiki
+
+maintenance/update.php "/{{ wiki_names[0] }}"
+
+{%- for extra_wiki in wiki_names[1:] %}
+maintenance/update.php "/{{ extra_wiki }}"
+{% endfor %}

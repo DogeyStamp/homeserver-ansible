@@ -77,3 +77,8 @@
     enabled: yes
     state: restarted
   when: php_config.changed
+
+- name: Deploy wiki-farm update maintenance script
+  template:
+    src: wiki_update.sh.j2
+    dest: "/home/{{ ansible_user }}/.local/bin/wiki_update.sh"

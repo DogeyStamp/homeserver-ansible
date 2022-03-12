@@ -3,6 +3,10 @@ if ( !defined( 'MEDIAWIKI' ) ) {
 	exit;
 }
 
+if ( !isset( $_SERVER['REQUEST_URI'] ) ) {
+	$_SERVER['REQUEST_URI'] = $argv;
+}
+
 $callingurl = strtolower( $_SERVER['REQUEST_URI'] ); // get the calling url
 if ( strpos( $callingurl, '/{{ wiki_names[0] }}' )  === 0 ) {
         require_once 'LocalSettings_{{ wiki_names[0] }}.php';
