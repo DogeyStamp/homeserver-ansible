@@ -40,7 +40,7 @@
 
 - name: Create NetworkManager connection
   community.general.nmcli:
-    dns4: "{{ dns_forward }}"
+    dns4: "{{ local_ip }}"
     dns4_ignore_auto: yes
     ip4: "{{ local_ip }}{{ subnet_prefix }}"
     gw4: "{{ gateway }}"
