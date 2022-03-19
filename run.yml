@@ -6,50 +6,86 @@
 
   pre_tasks:
     - import_tasks: tasks/set_host.yml
+      tags:
+        - host
     - import_tasks: tasks/ssh_port.yml
+      tags:
+        - port
     - import_tasks: tasks/bootstrap.yml
+      tags:
+        - bootstrap
 
   roles:
     - role: system
+      tags:
+        - system
     
     - role: filesystems
+      tags:
+        - filesystems
       when: enable_filesystems
 
     - role: networking/connection
+      tags:
+        - connection
       when: enable_connection
 
     - role: firewall
+      tags:
+        - firewall
       when: enable_firewall
 
     - role: networking/ddclient
+      tags:
+        - ddclient
       when: enable_ddclient
 
     - role: networking/nameserver
+      tags:
+        - nameserver
       when: enable_nameserver
 
     - role: services/sftp
+      tags:
+        - sftp
       when: enable_sftpr
 
     - role: services/mail
+      tags:
+        - mail
       when: enable_mail
 
     - role: networking/ssl
+      tags:
+        - ssl
       when: enable_ssl
 
     - role: services/webserver
+      tags:
+        - webserver
       when: enable_webserver
 
     - role: services/gitea
+      tags:
+        - gitea
       when: enable_gitea
 
     - role: services/wiki
+      tags:
+        - wiki
       when: enable_wiki
 
     - role: services/synapse
+      tags:
+        - synapse
       when: enable_synapse
 
     - role: services/website
+      tags:
+        - website
       when: enable_website
 
     - role: dotfiles
+      tags:
+        - dotfiles
       when: enable_dotfiles
