@@ -20,7 +20,9 @@
     regexp: "^ReadWritePaths.*"
     line: "ReadWritePaths={{ dataroot }}/gitea/"
     state: present
-  notify: Restart gitea
+  notify:
+    - Restart gitea
+    - Run daemon-reload for gitea
 
 - name: Find owner of data folder
   stat:

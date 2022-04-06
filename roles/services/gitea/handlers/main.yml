@@ -2,3 +2,8 @@
   service:
     name: gitea
     state: restarted
+
+- name: Run daemon-reload for gitea
+  systemd:
+    daemon_reload: yes
+    name: gitea

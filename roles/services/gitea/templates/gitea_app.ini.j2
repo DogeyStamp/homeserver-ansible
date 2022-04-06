@@ -5,11 +5,13 @@
 ; If you don't know what a setting is you should not set it.
 ; see https://docs.gitea.io/en-us/config-cheat-sheet/ for additional documentation.
 ; App name that shows in every page title
-APP_NAME = dogeystamp Gitea
+APP_NAME = dogeystamp gitea
 ; Change it if you run locally
 RUN_USER = gitea
 ; Application run mode, affects performance and debugging. Either "dev", "prod" or "test", default is "prod"
 RUN_MODE = prod
+
+GITEA_WORK_DIR                                 = {{ dataroot }}/gitea/repos
 
 [project]
 ; Default templates for project boards
