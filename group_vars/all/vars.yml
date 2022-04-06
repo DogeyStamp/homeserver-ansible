@@ -28,11 +28,14 @@ sftp_ro_username: dogeystamp-mobile
 
 # Git repos (could be localhost if Gitea is installed)
 dots_repo: http://localhost:3000/dogeystamp/dots.git
-site_repo: http://localhost:3000/dogeystamp/website.git
+site_repo: http://localhost:3000/dogeystamp/wb4.git
 
 # Drive with all the data stored on it (should be separate from OS drive)
 # This is the raw partition, and not the mapped crypt device
 secondary_disk: /dev/sdb
+
+# Title used for the static website generator
+web_name: dogeystamp
 
 # Web root for nginx and other applications
 webroot: /srv/http

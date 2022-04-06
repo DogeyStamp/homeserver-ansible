@@ -1,4 +1,27 @@
 - name: Fetch site source
   git:
-    dest: "{{ webroot }}/site"
+    dest: "/srv/web_source"
     repo: "{{ site_repo }}"
+  register: site_source
+
+- name: Make site directory in web root
+  file:
+    group: gitea
+    owner: gitea
+    path: "{{ webroot }}/site/"
+    state: directory
+  register: site_folder
+
+- name: Deploy source to web root
+  shell:
+    cmd: "./ssg6 src {{ webroot }}/site/ 'dogeystamp' 'https://{{ domain }}/site'"
+    chdir: /srv/web_source
+  when: site_source.changed or site_folder.changed
+
+- name: Cronjob to deploy source
+  cron:
+    user: http
+    name: "Update and deploy website source"
+    minute: 0
+    hour: "*/12"
+    job: "/srv/web_source/ssg6 /srv/web_source/src {{ webroot }}/site/ '{{ web_name }}' 'https://{{ domain }}/site'"
