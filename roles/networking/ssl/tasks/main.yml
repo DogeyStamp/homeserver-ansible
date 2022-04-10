@@ -37,7 +37,7 @@
   community.crypto.x509_certificate_info:
     path: "/etc/letsencrypt/certs/{{ domain }}.crt"
     valid_at:
-      now: "+0"
+      now: "+3w"
   register: result
   when: cert_file.stat.exists
 
