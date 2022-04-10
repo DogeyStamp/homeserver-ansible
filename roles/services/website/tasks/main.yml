@@ -1,13 +1,23 @@
+- name: Create site source folder
+  file:
+    owner: http
+    group: http
+    path: "/srv/web_source"
+    state: directory
+    recurse: yes
+  register: site_perm
+
 - name: Fetch site source
   git:
     dest: "/srv/web_source"
     repo: "{{ site_repo }}"
   register: site_source
+  become_user: http
 
 - name: Make site directory in web root
   file:
-    group: gitea
-    owner: gitea
+    group: http
+    owner: http
     path: "{{ webroot }}/site/"
     state: directory
   register: site_folder
@@ -16,7 +26,8 @@
   shell:
     cmd: "./ssg6 src {{ webroot }}/site/ 'dogeystamp' 'https://{{ domain }}/site'"
     chdir: /srv/web_source
-  when: site_source.changed or site_folder.changed
+  when: site_source.changed or site_folder.changed or site_perm.changed
+  become_user: http
 
 - name: Cronjob to deploy source
   cron:
