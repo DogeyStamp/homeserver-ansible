@@ -35,4 +35,4 @@
     name: "Update and deploy website source"
     minute: 0
     hour: "*/12"
-    job: "/srv/web_source/ssg6 /srv/web_source/src {{ webroot }}/site/ '{{ web_name }}' 'https://{{ domain }}/site'"
+    job: "git -C /srv/web_source/ pull && /srv/web_source/ssg6 /srv/web_source/src {{ webroot }}/site/ '{{ web_name }}' 'https://{{ domain }}/site'"
