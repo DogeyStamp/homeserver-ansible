@@ -68,6 +68,10 @@ http { include mime.types;
 			proxy_pass http://localhost:3000/ ;
 		}
 
+		location /mus/ {
+			proxy_pass http://localhost:4533/mus/ ;
+		}
+
 		location ~ \.php$ {
 			# 404
 			try_files $fastcgi_script_name =404;

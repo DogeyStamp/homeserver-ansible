@@ -1,0 +1,9 @@
+- name: Run daemon-reload for Navidrome
+  systemd:
+    name: navidrome
+    daemon-reload: yes
+
+- name: Restart Navidrome
+  service:
+    name: navidrome
+    state: restarted
