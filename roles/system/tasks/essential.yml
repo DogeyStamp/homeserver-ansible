@@ -7,10 +7,24 @@
     src: motd.j2
     dest: /etc/motd
 
+- name: Check if yay is installed
+  shell:
+    cmd: which yay
+  changed_when: false
+  register: yay_stat
+  ignore_errors: yes
+
 - name: Update packages
   community.general.pacman:
     update_cache: yes
     upgrade: yes
+
+- name: Update AUR packages
+  kewlfft.aur.aur:
+    upgrade: yes
+    aur_only: yes
+  become_user: aur-build
+  when: not yay_stat.failed
 
 - name: Determine if reboot for kernel update is needed
   shell:

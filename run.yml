@@ -20,6 +20,11 @@
       tags:
         - system
     
+    - role: aur
+      tags:
+        - aur
+      when: enable_aur
+
     - role: filesystems
       tags:
         - filesystems
@@ -74,6 +79,11 @@
       tags:
         - wiki
       when: enable_wiki
+
+    - role: services/navidrome
+      tags:
+        - navidrome
+      when: enable_navidrome
 
     - role: services/synapse
       tags:

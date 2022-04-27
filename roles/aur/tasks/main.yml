@@ -1,0 +1,17 @@
+- name: Create user for yay builds
+  user:
+    name: aur-build
+
+- name: Symlink sudo to doas
+  file:
+    dest: /usr/bin/sudo
+    src: /usr/bin/doas
+    state: link
+  ignore_errors: yes
+
+- name: Install yay
+  kewlfft.aur.aur:
+    name: yay-bin
+    use: makepkg
+    state: present
+  become_user: aur-build
