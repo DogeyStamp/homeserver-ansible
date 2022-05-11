@@ -1,0 +1,4 @@
+- name: Run daemon-reload for php-fpm
+  systemd:
+    name: php-fpm
+    daemon-reload: yes

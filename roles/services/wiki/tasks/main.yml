@@ -20,12 +20,19 @@
   template:
     src: LocalSettings.php.j2
     dest: "{{ webroot }}/{{ wiki_names[0] }}/LocalSettings.php"
+    mode: u=rwx,g=r,o=r
 
 - name: Deploy configuration files for individual wikis
   template:
     src: "LocalSettings_{{ item.1 }}.php.j2"
     dest: "{{ webroot }}/{{ wiki_names[0] }}/LocalSettings_{{ item.1 }}.php"
   with_indexed_items: "{{ wiki_names }}"
+
+- name: Ensure correct permissions on data
+  file:
+    path: "{{ dataroot }}/mediawiki/"
+    group: http
+    owner: http
 
 - name: Copy wiki logo files
   copy:

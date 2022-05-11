@@ -35,6 +35,13 @@
     state: present
     key: "{{ lookup('file', '~/.ssh/keys/{{ inventory_hostname }}.pub')}}"
 
+- name: Create .local/bin for administrator
+  file:
+    path: "/home/{{ admin_username }}/.local/bin/"
+    state: directory
+    owner: "{{ admin_username }}"
+    group: "{{ admin_username }}"
+
 - name: Reset variables to before fallback
   set_fact:
     ansible_become_method: "{{ escalation_method }}"

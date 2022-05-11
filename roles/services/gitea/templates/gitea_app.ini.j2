@@ -295,7 +295,7 @@ LOCAL_ROOT_URL                        = %(PROTOCOL)s://%(HTTP_ADDR)s:%(HTTP_PORT
 ; Disable SSH feature when not available
 DISABLE_SSH                           = false
 ; Whether to use the builtin SSH server or not.
-START_SSH_SERVER                      = false
+START_SSH_SERVER                      = true
 ; Username to use for the builtin SSH server. If blank, then it is the value of RUN_USER.
 BUILTIN_SSH_SERVER_USER               = 
 ; Domain name to be exposed in clone URL
@@ -303,7 +303,7 @@ SSH_DOMAIN                            = {{ domain }}
 ; The network interface the builtin SSH server should listen on
 SSH_LISTEN_HOST                       = 
 ; Port number to be exposed in clone URL
-SSH_PORT                              = 2500
+SSH_PORT                              = 2499
 ; The port number the builtin SSH server should listen on
 SSH_LISTEN_PORT                       = %(SSH_PORT)s
 ; Root path of SSH directory, default is '~/.ssh', but you have to use '/home/git/.ssh'.

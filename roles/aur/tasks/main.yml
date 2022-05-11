@@ -2,6 +2,22 @@
   user:
     name: aur-build
 
+- name: Install required packages
+  community.general.pacman:
+    name:
+      - fakeroot
+      - autoconf
+      - automake
+      - bison
+      - flex
+      - gcc
+      - libtool
+      - m4
+      - make
+      - patch
+      - pkgconf
+      - texinfo
+
 - name: Symlink sudo to doas
   file:
     dest: /usr/bin/sudo

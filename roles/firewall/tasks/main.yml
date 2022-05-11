@@ -33,6 +33,13 @@
     proto: tcp
     state: enabled
 
+- name: Allow gitea ssh port
+  community.general.ufw:
+    rule: allow
+    port: "2499"
+    proto: tcp
+    state: enabled
+
 - name: Allow DNS port to LAN
   community.general.ufw:
     rule: allow
