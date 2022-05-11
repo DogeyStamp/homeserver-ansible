@@ -1,15 +1,37 @@
+- name: Install necessary packages for beets
+  community.general.pacman:
+    name: 
+      - beets
+      - python-pylast
+      - python-httpx
+      - yt-dlp
+    state: present
+
 - name: Create Navidrome user
   user:
     name: navidrome
     home: "{{ dataroot }}/navidrome"
     create_home: no
 
-- name: Deploy SSH key for Navidrome user
-  ansible.posix.authorized_key:
-    user: navidrome
-    state: present
-    key: "{{ lookup('file', '~/.ssh/keys/{{ inventory_hostname }}_navidrome.pub')}}"
-  ignore_errors: yes
+- name: Ensure .config exists
+  file:
+    path: "/home/{{ username }}/.config/"
+    state: directory
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    recurse: yes
+
+- name: Ensure beets configuration folder exists
+  file:
+    path: "/home/{{ username }}/.config/beets/"
+    state: directory
+    owner: "{{ username }}"
+    group: "{{ username }}"
+
+- name: Deploy beets configuration file
+  template:
+    src: beets_config.yaml.j2
+    dest: "/home/{{ username }}/.config/beets/config.yaml"
 
 - name: Install Navidrome AUR package
   kewlfft.aur.aur:
@@ -17,12 +39,24 @@
     state: present
   become_user: aur-build
 
-- name: Ensure Navidrome directory is under right owner
+- name: Create music group
+  group:
+    name: mus
+    state: present
+
+- name: Add user to music group
+  user:
+    name: "{{ username }}"
+    append: yes
+    groups: mus
+
+- name: Set Navidrome directory permissions
   file:
     state: directory
     path: "{{ dataroot }}/navidrome"
     owner: navidrome
-    group: navidrome
+    group: mus
+    mode: u=rwX,g=rwX,o=-rwx
     recurse: yes
 
 - name: Set Navidrome working directory
