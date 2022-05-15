@@ -34,6 +34,10 @@ site_repo: http://localhost:3000/dogeystamp/wb4.git
 # This is the raw partition, and not the mapped crypt device
 secondary_disk: /dev/sda1
 
+# Drive for backups (also separate from OS drive)
+# This is the raw partition, and not the mapped crypt device
+backup_disk: /dev/sda2
+
 # Title used for the static website generator
 web_name: dogeystamp
 
@@ -128,6 +132,9 @@ enable_dotfiles: yes
 
 # LUKS crypto and filesystem mounts
 enable_filesystems: yes
+
+# Deploy script to facilitate backups
+enable_backup: yes
 
 # Firewall (UFW)
 enable_firewall: yes

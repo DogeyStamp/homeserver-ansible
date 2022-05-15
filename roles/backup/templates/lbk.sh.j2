@@ -1,0 +1,54 @@
+#!/bin/sh
+
+set -e
+
+# Local backup script (run as root)
+
+echo "Creating mountpoint."
+mkdir -p /mnt/disk_b/
+
+echo "Preparing to decrypt backup disk..."
+sleep 5
+echo "Decrypting disk..."
+cryptsetup luksOpen {{ backup_disk }} disk_b --key-file /k5e
+echo "Disk decrypted."
+
+echo "Mounting backup disk."
+mount /dev/mapper/disk_b /mnt/disk_b
+
+if ! mountpoint -q /mnt/disk;
+then
+	echo "Missing data disk mount!"
+	exit
+fi
+
+if [ ! -f /mnt/disk_b/bk-0.tgz ]
+then
+	echo "No full archive: preparing to perform complete backup."
+	sleep 5
+	echo "Performing complete backup."
+	tar -czvf /mnt/disk_b/bk-0.tgz -g /mnt/disk_b/bk.snar /mnt/disk
+	echo "Backup finished."
+	tput bel
+else
+	LABEL=$(date +"%Y_%m_%d")
+	echo "Preparing to perform incremental backup: $LABEL"
+	sleep 5.
+	echo "Performing incremental backup."
+	cp /mnt/disk_b/bk.snar "/mnt/disk_b/bk-$LABEL.snar"
+	tar -czvf /mnt/disk_b/bk-0.tgz -g /mnt/disk_b/bk.snar /mnt/disk
+	echo "Backup finished."
+	tput bel
+fi
+
+echo "Preparing to unmount backup disk."
+sleep 5
+echo "Unmounting backup disk."
+umount /mnt/disk_b
+echo "Unmounted backup disk."
+
+echo "Preparing to close backup disk."
+sleep 5
+echo "Closing backup disk."
+cryptsetup luksClose /dev/mapper/disk_b
+echo "Disk closed."

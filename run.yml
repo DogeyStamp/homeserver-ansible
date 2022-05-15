@@ -30,6 +30,11 @@
         - filesystems
       when: enable_filesystems
 
+    - role: backup
+      tags:
+        - backup
+      when: enable_backup
+
     - role: networking/connection
       tags:
         - connection
