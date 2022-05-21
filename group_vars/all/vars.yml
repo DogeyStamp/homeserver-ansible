@@ -89,6 +89,13 @@ interface: eth0
 # Email to send renewal notices to
 acme_email: "{{ email }}"
 
+# ACME directory to use
+# acme_dir: "https://acme-v02.api.letsencrypt.org/directory"
+acme_dir: "https://acme.zerossl.com/v2/DV90"
+
+# Algorithm for ACME External Account Binding
+acme_eab_alg: HS256
+
 
 
 ### Mediawiki farm variables

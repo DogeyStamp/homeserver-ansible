@@ -17,13 +17,13 @@ http { include mime.types;
 	server {
 		if ($host = {{ domain }}) {
 			return 301 https://$host$request_uri;
-		} # managed by Certbot
+		}
 	}
 
 	server {
 
-		ssl_certificate /etc/letsencrypt/certs/fullchain_{{ domain }}.crt;
-		ssl_certificate_key /etc/letsencrypt/keys/{{ domain }}.key;
+		ssl_certificate /etc/ssl-acme/certs/fullchain_{{ domain }}.crt;
+		ssl_certificate_key /etc/ssl-acme/keys/{{ domain }}.key;
 
 		ssl_session_cache    shared:SSL:1m;
 		ssl_session_timeout  5m;

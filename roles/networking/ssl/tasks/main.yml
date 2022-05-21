@@ -9,7 +9,7 @@
 
 - name: Create directories for ACME
   file:
-    path: "/etc/letsencrypt/{{ item }}"
+    path: "/etc/ssl-acme/{{ item }}"
     state: directory
     owner: root
     group: root
@@ -22,20 +22,20 @@
 
 - name: Generate ACME account key
   community.crypto.openssl_privatekey:
-    path: "/etc/letsencrypt/account/account.key"
+    path: "/etc/ssl-acme/account/account.key"
 
 - name: Generate ACME private key
   community.crypto.openssl_privatekey:
-    path: "/etc/letsencrypt/keys/{{ domain }}.key"
+    path: "/etc/ssl-acme/keys/{{ domain }}.key"
 
 - name: Check if certificate exists
   stat:
-    path: "/etc/letsencrypt/certs/{{ domain }}.crt"
+    path: "/etc/ssl-acme/certs/{{ domain }}.crt"
   register: cert_file
 
 - name: Check if certificate is expired
   community.crypto.x509_certificate_info:
-    path: "/etc/letsencrypt/certs/{{ domain }}.crt"
+    path: "/etc/ssl-acme/certs/{{ domain }}.crt"
     valid_at:
       now: "+3w"
   register: result
@@ -61,37 +61,38 @@
 
 - name: Create ACME account
   community.crypto.acme_account:
-    account_key_src: /etc/letsencrypt/account/account.key
+    account_key_src: /etc/ssl-acme/account/account.key
     state: present
     allow_creation: yes
     contact:
       - "mailto:{{ acme_email }}"
-    acme_directory: "https://acme-v02.api.letsencrypt.org/directory"
+    acme_directory: "{{ acme_dir }}"
     terms_agreed: 1
     acme_version: 2
+    external_account_binding: {alg: "{{ acme_eab_alg }}", key: "{{ acme_eab_key }}", kid: "{{ acme_eab_kid }}"}
   register: account
   when: cert_regen is defined
 
 - name: Generate ACME CSR
   community.crypto.openssl_csr:
-    path: "/etc/letsencrypt/csrs/{{ domain }}.csr"
+    path: "/etc/ssl-acme/csrs/{{ domain }}.csr"
     common_name: "{{ domain }}"
     subject_alt_name: "DNS:{{ domain }}"
-    privatekey_path: "/etc/letsencrypt/keys/{{ domain }}.key"
+    privatekey_path: "/etc/ssl-acme/keys/{{ domain }}.key"
   when: cert_regen is defined
 
 - name: Retrieve ACME challenge
   community.crypto.acme_certificate:
-    acme_directory: "https://acme-v02.api.letsencrypt.org/directory"
+    acme_directory: "{{ acme_dir }}"
     acme_version: 2
-    account_key_src: /etc/letsencrypt/account/account.key
+    account_key_src: /etc/ssl-acme/account/account.key
     account_uri: "{{ account.account_uri }}"
     account_email: "{{ acme_email }}"
     terms_agreed: 1
     challenge: http-01
-    csr: "/etc/letsencrypt/csrs/{{ domain }}.csr"
-    dest: "/etc/letsencrypt/certs/{{ domain }}.crt"
-    fullchain_dest: "/etc/letsencrypt/certs/fullchain_{{ domain }}.crt"
+    csr: "/etc/ssl-acme/csrs/{{ domain }}.csr"
+    dest: "/etc/ssl-acme/certs/{{ domain }}.crt"
+    fullchain_dest: "/etc/ssl-acme/certs/fullchain_{{ domain }}.crt"
     remaining_days: 91
   register: acme_challenge
   when: cert_regen is defined
@@ -118,16 +119,16 @@
 
 - name: Complete ACME challenge
   community.crypto.acme_certificate:
-    acme_directory: "https://acme-v02.api.letsencrypt.org/directory"
+    acme_directory: "{{ acme_dir }}"
     acme_version: 2
-    account_key_src: /etc/letsencrypt/account/account.key
+    account_key_src: /etc/ssl-acme/account/account.key
     account_email: "{{ acme_email }}"
     account_uri: "{{ account.account_uri }}"
     challenge: http-01
     terms_agreed: 1
-    csr: "/etc/letsencrypt/csrs/{{ domain }}.csr"
-    dest: "/etc/letsencrypt/certs/{{ domain }}.crt"
-    fullchain_dest: "/etc/letsencrypt/certs/fullchain_{{ domain }}.crt"
-    chain_dest: "/etc/letsencrypt/certs/chain_{{ domain }}.crt"
+    csr: "/etc/ssl-acme/csrs/{{ domain }}.csr"
+    dest: "/etc/ssl-acme/certs/{{ domain }}.crt"
+    fullchain_dest: "/etc/ssl-acme/certs/fullchain_{{ domain }}.crt"
+    chain_dest: "/etc/ssl-acme/certs/chain_{{ domain }}.crt"
     data: "{{ acme_challenge }}"
   when: cert_regen is defined
