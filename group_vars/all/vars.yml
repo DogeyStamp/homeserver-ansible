@@ -127,6 +127,10 @@ registration_shared_secret: "secret"
 macaroon_secret_key: "secret"
 form_secret: "secret"
 
+# SSL ACME External Account Binding secrets (optional: required for some CAs)
+acme_eab_kid: "secret"
+acme_eab_key: "secret"
+
 
 
 ### Role switches
