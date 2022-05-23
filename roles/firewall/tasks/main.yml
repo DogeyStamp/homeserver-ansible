@@ -26,6 +26,32 @@
     - http
     - https
 
+- name: Allow coturn ports (turn/turns)
+  community.general.ufw:
+    rule: allow
+    port: "{{ item }}"
+    state: enabled
+  when: enable_coturn
+  with_items:
+    - turn
+    - turns
+
+- name: Allow coturn UDP relay ports
+  community.general.ufw:
+    rule: allow
+    port: "49152:65535"
+    proto: udp
+    state: enabled
+  when: enable_coturn
+
+- name: Allow coturn TCP relay ports
+  community.general.ufw:
+    rule: allow
+    port: "49152:65535"
+    proto: tcp
+    state: enabled
+  when: enable_coturn
+
 - name: Allow ssh port
   community.general.ufw:
     rule: allow

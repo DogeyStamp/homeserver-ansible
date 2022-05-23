@@ -127,6 +127,9 @@ registration_shared_secret: "secret"
 macaroon_secret_key: "secret"
 form_secret: "secret"
 
+# Coturn secrets
+coturn_secret_key: "secret"
+
 # SSL ACME External Account Binding secrets (optional: required for some CAs)
 acme_eab_kid: "secret"
 acme_eab_key: "secret"
@@ -170,6 +173,9 @@ enable_gitea: yes
 
 # Matrix server
 enable_synapse: yes
+
+# TURN server for Matrix VoIP
+enable_coturn: yes
 
 # MediaWiki
 enable_wiki: yes

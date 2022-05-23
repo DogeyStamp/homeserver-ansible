@@ -1,0 +1,4 @@
+- name: Restart coturn
+  service:
+    name: coturn
+    state: restarted

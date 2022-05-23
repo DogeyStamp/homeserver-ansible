@@ -1,0 +1,33 @@
+- name: Install coturn package
+  community.general.pacman:
+    name: coturn
+    state: present
+
+- name: Get public IP address
+  community.general.ipify_facts:
+
+- name: Deploy coturn configuration file
+  template:
+    src: turnserver.conf.j2
+    dest: /etc/turnserver/turnserver.conf
+  notify: Restart coturn
+
+- name: Deploy coturn IP updater script
+  template:
+    src: coturn-ip-upd.sh.j2
+    dest: /root/coturn-ip-upd.sh
+    mode: 700
+  notify: Restart coturn
+
+- name: Run coturn IP update every 5 minutes
+  cron:
+    name: "Update coturn public IP address field"
+    minute: "*/5"
+    job: "/root/coturn-ip-upd.sh"
+    state: present
+
+- name: Enable coturn
+  service:
+    name: coturn
+    state: started
+    enabled: yes

@@ -1,0 +1,44 @@
+set -e
+
+TMPF=$(mktemp)
+
+cp /etc/turnserver/turnserver.conf $TMPF
+
+IPADD=$(curl ip.me 2>/dev/null)
+
+if [ ! -f "/etc/turnserver/turnserver.conf" ]
+then
+	touch /etc/turnserver/error
+	if [ ! -f "/etc/turnserver/error" ]
+	then
+		touch /etc/turnserver/error
+		echo "/etc/turnserver/turnserver.conf does not exist."
+		echo "Please remove /etc/turnserver-error once the issue is resolved to unsilence errors."
+		exit 1
+	else
+		exit
+	fi
+fi
+
+if [ -z "$IPADD" ]
+then
+	if [ ! -f "/etc/turnserver/error" ]
+	then
+		touch /etc/turnserver/error
+		echo "There was an issue getting the public IP address."
+		echo "Please remove /etc/turnserver/turnserver-error once the issue is resolved to unsilence errors."
+		exit 1
+	else
+		exit
+	fi
+fi
+
+sed -i "s/^external-ip=.*/external-ip=$IPADD/g" "$TMPF"
+
+if [ -n "$(diff $TMPF /etc/turnserver/turnserver.conf)" ]
+then
+	cp $TMPF /etc/turnserver/turnserver.conf
+	systemctl restart coturn
+	echo "IP address for Coturn changed to: $IPADD"
+	echo "Coturn has been restarted."
+fi

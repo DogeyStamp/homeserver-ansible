@@ -7,6 +7,17 @@
 
     state: present
 
+- name: Create SSL read group
+  group:
+    name: sslr
+    state: present
+
+- name: Add turnserver to SSL read group
+  user:
+    name: "turnserver"
+    append: yes
+    groups: sslr
+
 - name: Create directories for ACME
   file:
     path: "/etc/ssl-acme/{{ item }}"
@@ -23,10 +34,16 @@
 - name: Generate ACME account key
   community.crypto.openssl_privatekey:
     path: "/etc/ssl-acme/account/account.key"
+    owner: root
+    group: sslr
+    mode: 0640
 
 - name: Generate ACME private key
   community.crypto.openssl_privatekey:
     path: "/etc/ssl-acme/keys/{{ domain }}.key"
+    owner: root
+    group: sslr
+    mode: 0640
 
 - name: Check if certificate exists
   stat:

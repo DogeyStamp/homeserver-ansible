@@ -90,6 +90,11 @@
         - navidrome
       when: enable_navidrome
 
+    - role: services/coturn
+      tags:
+        - coturn
+      when: enable_coturn
+
     - role: services/synapse
       tags:
         - synapse
