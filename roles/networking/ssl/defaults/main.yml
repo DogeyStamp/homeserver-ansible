@@ -1,0 +1,30 @@
+# List of domains to get an SSL cert for
+# There will be a *single* certificate covering all of these
+# Ensure that your CA supports multi-domain certs
+ssl_domains:
+  - "site.dogeystamp.com"
+  - "d.nerdpol.ovh"
+  - "{{ wiki_domain }}"
+
+# File name for the certificate
+cert_name: "{{ ssl_domains[0] }}"
+
+# File name for the private key
+key_name: "{{ cert_name }}"
+
+# Account name for the account key
+account_name: "account"
+
+# Email to send renewal notices to
+acme_email: "{{ email }}"
+
+# ACME directory to use
+# (Staging directoy by default.)
+acme_dir: "https://acme-staging-v02.api.letsencrypt.org/directory"
+
+# SSL ACME External Account Binding settings (optional: required for some CAs)
+acme_eab: {
+  alg: HS256,
+  key: "",
+  kid: "",
+}

@@ -1,3 +1,11 @@
+- name: Set site path
+  set_fact:
+    path: "{{ server_blocks.website.domain }}{{ nginx_services.website.path }}"
+
+- name: Set full root
+  set_fact:
+    fullroot: "{{ webroot }}/{{ path }}"
+
 - name: Install required packages
   community.general.pacman:
     name: 
@@ -25,13 +33,13 @@
   file:
     group: http
     owner: http
-    path: "{{ webroot }}/site/"
+    path: "{{ fullroot }}"
     state: directory
   register: site_folder
 
 - name: Deploy source to web root
   shell:
-    cmd: "./ssg6 src {{ webroot }}/site/ 'dogeystamp' 'https://{{ domain }}/site'"
+    cmd: "./ssg6 src {{ fullroot }} '{{ web_name }}' 'https://{{ path }}'"
     chdir: /srv/web_source
   when: site_source.changed or site_folder.changed or site_perm.changed
   become_user: http
@@ -42,4 +50,4 @@
     name: "Update and deploy website source"
     minute: 0
     hour: "*/12"
-    job: "git -C /srv/web_source/ pull && /srv/web_source/ssg6 /srv/web_source/src {{ webroot }}/site/ '{{ web_name }}' 'https://{{ domain }}/site'"
+    job: "git -C /srv/web_source/ pull && /srv/web_source/ssg6 /srv/web_source/src {{ fullroot }} '{{ web_name }}' 'https://{{ path }}'"

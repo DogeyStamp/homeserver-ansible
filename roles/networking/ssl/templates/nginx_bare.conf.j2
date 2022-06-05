@@ -6,12 +6,14 @@ events {
 }
 
 http {
+	{% for item in to_regen %}
 	server {
 	  listen 80;
-	  server_name {{ domain }};
-	  root {{ webroot }}/;
+	  server_name {{ item }};
+	  root {{ webroot }}/{{ item }};
 
 	  location / {
 	  }
 	}
+	{% endfor %}
 }

@@ -9,23 +9,32 @@
 
     state: present
 
-- name: Symlink wikis into web root
+- name: Set wiki root
+  set_fact:
+    wiki_root: "{{ webroot }}/{{ server_blocks.wiki.domain }}{{ nginx_services.wiki.path }}"
+
+- name: Create wiki web root
+  file:
+    path: "{{ wiki_root }}"
+    state: directory
+
+- name: Symlink wikis into wiki web root
   file:
     src: /usr/share/webapps/mediawiki
-    dest: "{{ webroot }}/{{ item }}"
+    dest: "{{ wiki_root }}/{{ item }}"
     state: link
   with_items: "{{ wiki_names }}"
 
 - name: Deploy wiki-farm main configuration file
   template:
     src: LocalSettings.php.j2
-    dest: "{{ webroot }}/{{ wiki_names[0] }}/LocalSettings.php"
+    dest: "{{ wiki_root }}/{{ wiki_names[0] }}/LocalSettings.php"
     mode: u=rwx,g=r,o=r
 
 - name: Deploy configuration files for individual wikis
   template:
     src: "LocalSettings_{{ item.1 }}.php.j2"
-    dest: "{{ webroot }}/{{ wiki_names[0] }}/LocalSettings_{{ item.1 }}.php"
+    dest: "{{ wiki_root }}/{{ wiki_names[0] }}/LocalSettings_{{ item.1 }}.php"
   with_indexed_items: "{{ wiki_names }}"
 
 - name: Ensure correct permissions on data
@@ -37,7 +46,7 @@
 - name: Copy wiki logo files
   copy:
     src: "{{ item }}"
-    dest: "{{ webroot }}/{{ wiki_names[0] }}/resources/assets/"
+    dest: "{{ wiki_root }}/{{ wiki_names[0] }}/resources/assets/"
   with_fileglob:
     - logos/*.png
 

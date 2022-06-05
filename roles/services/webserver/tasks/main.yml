@@ -3,10 +3,28 @@
     name: nginx
     state: present
 
+- name: Create nginx conf.d directory
+  file:
+    path: /etc/nginx/conf.d
+    state: directory
+
 - name: Configure nginx
   template:
     src: nginx.conf.j2
     dest: /etc/nginx/nginx.conf
+  notify: Restart webserver
+
+- name: Create nginx SSL configuration file
+  template:
+    src: ssl.conf.j2
+    dest: /etc/nginx/ssl.conf
+  notify: Restart webserver
+
+- name: Create nginx server blocks
+  template:
+    src: server_block.j2
+    dest: "/etc/nginx/conf.d/{{ item }}.conf"
+  with_items: "{{ server_blocks }}"
   notify: Restart webserver
 
 - name: Enable nginx service

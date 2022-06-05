@@ -65,10 +65,46 @@
         - mail
       when: enable_mail
 
+    # Main SSL certificate (with Let's Encrypt)
     - role: networking/ssl
       tags:
         - ssl
+      acme_dir: "https://acme-v02.api.letsencrypt.org/directory"
+      cert_name: "{{ domain }}"
+      ssl_domains:
+        - "{{ server_blocks.wiki.domain }}"
+        - "{{ server_blocks.synapse.domain }}"
+        - "{{ server_blocks.website.domain }}"
+        - "{{ server_blocks.gitea.domain }}"
+        - "{{ server_blocks.navidrome.domain }}"
+      account_name: "letsencrypt"
       when: enable_ssl
+
+    # SSL cert for dyndns_domain
+    - role: networking/ssl
+      tags:
+        - ssl
+      acme_dir: "https://acme-v02.api.letsencrypt.org/directory"
+      ssl_domains:
+        - "{{ dyndns_domain }}"
+      account_name: "letsencrypt"
+      when: enable_ssl and dyndns_domain != domain
+
+    # ZeroSSL certificate for Coturn (see https://bugs.chromium.org/p/webrtc/issues/detail?id=11710)
+    - role: networking/ssl
+      tags:
+        - ssl
+      acme_dir: "https://acme.zerossl.com/v2/DV90"
+      ssl_domains:
+        - "{{ service_info.coturn.domain }}"
+      acme_eab: {
+        alg: HS256,
+        key: "{{ zerossl_acme_eab_key }}",
+        kid: "{{ zerossl_acme_eab_kid }}"
+      }
+      acme_email: "{{ zerossl_email }}"
+      account_name: "zerossl"
+      when: enable_ssl and enable_coturn
 
     - role: services/webserver
       tags:

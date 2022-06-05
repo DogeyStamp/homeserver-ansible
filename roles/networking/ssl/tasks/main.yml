@@ -12,19 +12,13 @@
     name: sslr
     state: present
 
-- name: Add turnserver to SSL read group
-  user:
-    name: "turnserver"
-    append: yes
-    groups: sslr
-
 - name: Create directories for ACME
   file:
     path: "/etc/ssl-acme/{{ item }}"
     state: directory
     owner: root
     group: root
-    mode: 0711
+    mode: 0755
   with_items:
     - account
     - certs
@@ -33,52 +27,52 @@
 
 - name: Generate ACME account key
   community.crypto.openssl_privatekey:
-    path: "/etc/ssl-acme/account/account.key"
+    path: "/etc/ssl-acme/account/{{ account_name }}.key"
     owner: root
     group: sslr
     mode: 0640
 
 - name: Generate ACME private key
   community.crypto.openssl_privatekey:
-    path: "/etc/ssl-acme/keys/{{ domain }}.key"
+    path: "/etc/ssl-acme/keys/{{ key_name }}.key"
     owner: root
     group: sslr
     mode: 0640
 
-- name: Check if certificate exists
+- name: Check if certificate file exists
   stat:
-    path: "/etc/ssl-acme/certs/{{ domain }}.crt"
+    path: "/etc/ssl-acme/certs/{{ cert_name }}.crt"
   register: cert_file
 
 - name: Check if certificate is expired
   community.crypto.x509_certificate_info:
-    path: "/etc/ssl-acme/certs/{{ domain }}.crt"
+    path: "{{ cert_file.stat.path }}"
     valid_at:
       now: "+3w"
-  register: result
   when: cert_file.stat.exists
+  register: expired_cert
 
 - name: Determine whether the certificate should be regenerated
   set_fact:
-    cert_regen: yes
-  when: not cert_file.stat.exists or result.expired | bool
+    to_regen: "{{ ssl_domains }}"
+  when: not cert_file.stat.exists or not expired_cert.valid_at.now
 
 - name: Configure nginx for ACME
   template:
     src: nginx_bare.conf.j2
     dest: /etc/nginx/nginx.conf
-  when: cert_regen is defined
+  when: to_regen is defined
 
 - name: Restart nginx service
   service:
     name: nginx
     state: restarted
     enabled: yes
-  when: cert_regen is defined
+  when: to_regen is defined
 
 - name: Create ACME account
   community.crypto.acme_account:
-    account_key_src: /etc/ssl-acme/account/account.key
+    account_key_src: "/etc/ssl-acme/account/{{ account_name }}.key"
     state: present
     allow_creation: yes
     contact:
@@ -86,66 +80,65 @@
     acme_directory: "{{ acme_dir }}"
     terms_agreed: 1
     acme_version: 2
-    external_account_binding: {alg: "{{ acme_eab_alg }}", key: "{{ acme_eab_key }}", kid: "{{ acme_eab_kid }}"}
+    external_account_binding: "{{ (acme_eab.key != '') | ternary(acme_eab, omit) }}"
   register: account
-  when: cert_regen is defined
+  when: to_regen is defined
 
 - name: Generate ACME CSR
   community.crypto.openssl_csr:
-    path: "/etc/ssl-acme/csrs/{{ domain }}.csr"
-    common_name: "{{ domain }}"
-    subject_alt_name: "DNS:{{ domain }}"
-    privatekey_path: "/etc/ssl-acme/keys/{{ domain }}.key"
-  when: cert_regen is defined
+    path: "/etc/ssl-acme/csrs/{{ cert_name }}.csr"
+    subject_alt_name: "{{ to_regen | map('regex_replace', '^', 'DNS:') | join(',') }}"
+    privatekey_path: "/etc/ssl-acme/keys/{{ key_name }}.key"
+  when: to_regen is defined
 
 - name: Retrieve ACME challenge
   community.crypto.acme_certificate:
     acme_directory: "{{ acme_dir }}"
     acme_version: 2
-    account_key_src: /etc/ssl-acme/account/account.key
+    account_key_src: "/etc/ssl-acme/account/{{ account_name }}.key"
     account_uri: "{{ account.account_uri }}"
     account_email: "{{ acme_email }}"
     terms_agreed: 1
     challenge: http-01
-    csr: "/etc/ssl-acme/csrs/{{ domain }}.csr"
-    dest: "/etc/ssl-acme/certs/{{ domain }}.crt"
-    fullchain_dest: "/etc/ssl-acme/certs/fullchain_{{ domain }}.crt"
+    csr: "/etc/ssl-acme/csrs/{{ cert_name }}.csr"
+    dest: "/etc/ssl-acme/certs/{{ cert_name }}.crt"
+    fullchain_dest: "/etc/ssl-acme/certs/fullchain_{{ cert_name }}.crt"
     remaining_days: 91
   register: acme_challenge
-  when: cert_regen is defined
+  when: to_regen is defined
 
 - name: Create ACME challenge directory
   file:
-    path: "{{ webroot }}/.well-known/acme-challenge"
+    path: "{{ webroot }}/{{ item }}/.well-known/acme-challenge"
     state: directory
     owner: root
     group: root
     mode: 0755
-  when: cert_regen is defined
+  with_items: "{{ to_regen }}"
+  when: to_regen is defined
 
 - name: Add ACME challenge files
   copy:
-    content: "{{ acme_challenge['challenge_data'][item]['http-01']['resource_value'] }}"
-    dest: "{{ webroot }}/{{ acme_challenge['challenge_data'][item]['http-01']['resource'] }}"
+    content: "{{ item.value['http-01']['resource_value'] }}"
+    dest: "{{ webroot }}/{{ item.key }}/{{ item.value['http-01']['resource'] }}"
     owner: root
     group: root
     mode: 644
-  with_items:
-    - "{{ domain }}"
-  when: cert_regen is defined
+  with_items: "{{ acme_challenge['challenge_data'] | dict2items }}"
+  when: to_regen is defined
 
 - name: Complete ACME challenge
   community.crypto.acme_certificate:
     acme_directory: "{{ acme_dir }}"
     acme_version: 2
-    account_key_src: /etc/ssl-acme/account/account.key
+    account_key_src: "/etc/ssl-acme/account/{{ account_name }}.key"
     account_email: "{{ acme_email }}"
     account_uri: "{{ account.account_uri }}"
     challenge: http-01
     terms_agreed: 1
-    csr: "/etc/ssl-acme/csrs/{{ domain }}.csr"
-    dest: "/etc/ssl-acme/certs/{{ domain }}.crt"
-    fullchain_dest: "/etc/ssl-acme/certs/fullchain_{{ domain }}.crt"
-    chain_dest: "/etc/ssl-acme/certs/chain_{{ domain }}.crt"
+    csr: "/etc/ssl-acme/csrs/{{ cert_name }}.csr"
+    dest: "/etc/ssl-acme/certs/{{ cert_name }}.crt"
+    fullchain_dest: "/etc/ssl-acme/certs/fullchain_{{ cert_name }}.crt"
+    chain_dest: "/etc/ssl-acme/certs/chain_{{ cert_name }}.crt"
     data: "{{ acme_challenge }}"
-  when: cert_regen is defined
+  when: to_regen is defined

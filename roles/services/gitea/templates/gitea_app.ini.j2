@@ -267,8 +267,8 @@ FILE_EXTENSIONS                     = .md,.markdown,.mdown,.mkd
 [server]
 ; The protocol the server listens on. One of 'http', 'https', 'unix' or 'fcgi'.
 PROTOCOL                              = http
-DOMAIN                                = {{ domain }}
-ROOT_URL                              = http://{{ domain }}/git/
+DOMAIN                                = {{ server_blocks.gitea.domain }}
+ROOT_URL                              = http://{{ server_blocks.gitea.domain }}{{ nginx_services.gitea.path }}
 ; when STATIC_URL_PREFIX is empty it will follow ROOT_URL
 STATIC_URL_PREFIX                     = 
 ; The address to listen on. Either a IPv4/IPv6 address or the path to a unix socket.

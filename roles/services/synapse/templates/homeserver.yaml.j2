@@ -42,7 +42,7 @@ modules:
 # lowercase and may contain an explicit port.
 # Examples: matrix.org, localhost:8080
 #
-server_name: "{{ domain }}"
+server_name: "{{ server_blocks.synapse.domain }}"
 
 # When running as a daemon, the file to store the pid in
 #
@@ -1059,7 +1059,7 @@ url_preview_accept_language:
 
 # The public URIs of the TURN server to give to clients
 #
-turn_uris: [ "turn:{{ domain }}?transport=udp", "turn:{{ domain }}?transport=tcp" ]
+turn_uris: [ "turn:{{ service_info.coturn.domain }}?transport=udp", "turn:{{ service_info.coturn.domain }}?transport=tcp" ]
 
 # The shared secret used to compute passwords for the TURN server
 #

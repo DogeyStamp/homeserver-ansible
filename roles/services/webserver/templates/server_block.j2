@@ -1,0 +1,16 @@
+server {
+	ssl_certificate /etc/ssl-acme/certs/fullchain_{{ server_blocks[item].ssl_cert }}.crt;
+	ssl_certificate_key /etc/ssl-acme/keys/{{ server_blocks[item].ssl_cert }}.key;
+
+	include ssl.conf;
+
+	server_name {{ server_blocks[item].domain }};
+
+	{% for listener in server_blocks[item].listens %}
+	listen {{ listener }};
+	{% endfor %}
+
+	{% for srv in server_blocks[item].services %}
+	{% include "srv_conf/" + srv + ".conf.j2" %}
+	{% endfor %}
+}

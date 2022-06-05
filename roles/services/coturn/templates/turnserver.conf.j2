@@ -1,7 +1,7 @@
 use-auth-secret
 static-auth-secret={{ coturn_secret_key }}
 
-realm={{ domain }}
+realm={{ service_info.coturn.domain }}
 server-name=turnserver
 
 syslog
@@ -34,8 +34,8 @@ user-quota=12
 total-quota=1200
 
 # TLS
-cert=/etc/ssl-acme/certs/fullchain_{{ domain }}.crt
-pkey=/etc/ssl-acme/keys/{{ domain }}.key
+cert=/etc/ssl-acme/certs/fullchain_{{ service_info.coturn.ssl_cert }}.crt
+pkey=/etc/ssl-acme/keys/{{ service_info.coturn.ssl_cert }}.key
 
 # External IP address (automatically managed: do not edit!)
 external-ip={{ ansible_facts.ipify_public_ip }}

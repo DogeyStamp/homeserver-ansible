@@ -1,5 +1,5 @@
 $TTL    604800
-@       IN      SOA     {{ domain }}. {{ email }}. (
+@       IN      SOA     {{ dyndns_domain }}. {{ email }}. (
                               3         ; Serial
                          604800         ; Refresh
                           86400         ; Retry
@@ -10,4 +10,4 @@ ns IN A {{ local_ip }}
 @       IN      NS      localhost.
 @       IN      A       {{ local_ip }}
 @       IN      AAAA    ::1
-{{ domain }} IN A {{ local_ip }}
+{{ dyndns_domain }} IN A {{ local_ip }}

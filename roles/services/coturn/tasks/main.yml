@@ -3,6 +3,12 @@
     name: coturn
     state: present
 
+- name: Add turnserver to SSL read group
+  user:
+    name: "turnserver"
+    append: yes
+    groups: sslr
+
 - name: Get public IP address
   community.general.ipify_facts:
 
