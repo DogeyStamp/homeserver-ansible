@@ -1,4 +1,4 @@
 location {{ nginx_services[srv].path }} {
-	root {{ webroot }}/{{ server_blocks.website.domain }}{{ nginx_services[srv].path }};
+	root {{ webroot }}/{{ server_blocks[item].domain }}{{ nginx_services[srv].path }};
 	index index.html;
 }
