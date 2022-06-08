@@ -49,5 +49,5 @@
     user: http
     name: "Update and deploy website source"
     minute: 0
-    hour: "*/12"
+    hour: "*/4"
     job: "git -C /srv/web_source/ pull && /srv/web_source/ssg6 /srv/web_source/src {{ fullroot }} '{{ web_name }}' 'https://{{ path }}'"
