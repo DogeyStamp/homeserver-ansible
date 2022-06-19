@@ -56,7 +56,7 @@
     path: "{{ dataroot }}/navidrome"
     owner: navidrome
     group: mus
-    mode: u=rwX,g=rwX,o=-rwx
+    mode: u=rwX,g=rwX,o=rX
     recurse: yes
 
 - name: Set Navidrome working directory
