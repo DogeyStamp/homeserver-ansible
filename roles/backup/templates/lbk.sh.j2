@@ -27,7 +27,12 @@ then
 	echo "No full archive: preparing to perform complete backup."
 	sleep 5
 	echo "Performing complete backup."
-	tar -czvf /mnt/disk_b/bk-0.tgz -g /mnt/disk_b/bk.snar /mnt/disk
+
+	tar -czv \
+	--exclude={{ dataroot }}/navidrome/cache \
+	--exclude={{ dataroot }}/synapse/media_store \
+	-f /mnt/disk_b/bk-0.tgz -g /mnt/disk_b/bk.snar /mnt/disk \
+
 	echo "Backup finished."
 	tput bel
 else
@@ -36,7 +41,12 @@ else
 	sleep 5.
 	echo "Performing incremental backup."
 	cp /mnt/disk_b/bk.snar "/mnt/disk_b/bk-$LABEL.snar"
-	tar -czvf /mnt/disk_b/bk-0.tgz -g /mnt/disk_b/bk.snar /mnt/disk
+
+	tar -czv \
+	--exclude={{ dataroot }}/navidrome/cache \
+	--exclude={{ dataroot }}/synapse/media_store \
+	-f "/mnt/disk_b/bk-$LABEL.tgz" -g "/mnt/disk_b/bk-$LABEL.snar" /mnt/disk \
+
 	echo "Backup finished."
 	tput bel
 fi
