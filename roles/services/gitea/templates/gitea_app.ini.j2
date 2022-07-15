@@ -299,7 +299,7 @@ START_SSH_SERVER                      = true
 ; Username to use for the builtin SSH server. If blank, then it is the value of RUN_USER.
 BUILTIN_SSH_SERVER_USER               = 
 ; Domain name to be exposed in clone URL
-SSH_DOMAIN                            = {{ domain }}
+SSH_DOMAIN                            = {{ server_blocks.gitea.domain }}
 ; The network interface the builtin SSH server should listen on
 SSH_LISTEN_HOST                       = 
 ; Port number to be exposed in clone URL
