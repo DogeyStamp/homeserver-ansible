@@ -141,4 +141,5 @@
     fullchain_dest: "/etc/ssl-acme/certs/fullchain_{{ cert_name }}.crt"
     chain_dest: "/etc/ssl-acme/certs/chain_{{ cert_name }}.crt"
     data: "{{ acme_challenge }}"
+    remaining_days: 21
   when: to_regen is defined
