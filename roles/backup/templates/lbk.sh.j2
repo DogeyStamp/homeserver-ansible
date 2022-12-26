@@ -22,34 +22,11 @@ then
 	exit
 fi
 
-if [ ! -f /mnt/disk_b/bk-0.tgz ]
-then
-	echo "No full archive: preparing to perform complete backup."
-	sleep 5
-	echo "Performing complete backup."
-
-	tar -czv \
+mkdir -p /mnt/disk_b/bkd/
+rsync -avxP --delete \
 	--exclude={{ dataroot }}/navidrome/cache \
 	--exclude={{ dataroot }}/synapse/media_store \
-	-f /mnt/disk_b/bk-0.tgz -g /mnt/disk_b/bk.snar /mnt/disk \
-
-	echo "Backup finished."
-	tput bel
-else
-	LABEL=$(date +"%Y_%m_%d")
-	echo "Preparing to perform incremental backup: $LABEL"
-	sleep 5.
-	echo "Performing incremental backup."
-	cp /mnt/disk_b/bk.snar "/mnt/disk_b/bk-$LABEL.snar"
-
-	tar -czv \
-	--exclude={{ dataroot }}/navidrome/cache \
-	--exclude={{ dataroot }}/synapse/media_store \
-	-f "/mnt/disk_b/bk-$LABEL.tgz" -g "/mnt/disk_b/bk-$LABEL.snar" /mnt/disk \
-
-	echo "Backup finished."
-	tput bel
-fi
+	/mnt/disk/ /mnt/disk_b/bkd/
 
 echo "Preparing to unmount backup disk."
 sleep 5
