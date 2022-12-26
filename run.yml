@@ -65,6 +65,11 @@
         - mail
       when: enable_mail
 
+    - role: services/syncthing
+      tags:
+        - syncthing
+      when: enable_syncthing
+
     # Main SSL certificate (with Let's Encrypt)
     - role: networking/ssl
       tags:

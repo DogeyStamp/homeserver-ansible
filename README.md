@@ -18,6 +18,7 @@ This project was largely inspired by his own [infra](https://github.com/notthebe
 * MediaWiki farm
 * Navidrome music server
 * SFTP (not really a service, included in sshd)
+* Syncthing
 * Firewall (UFW)
 
 ## Miscellaneous features
@@ -30,6 +31,9 @@ This project was largely inspired by his own [infra](https://github.com/notthebe
 ## Usage
 
 Install ansible. [Install guide](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html)
+
+Install python-hashlib. This is necessary for syncthing because for some reason
+it can't compute hashes for bcrypt.
 
 
 Clone the repo:

@@ -201,6 +201,9 @@ registration_shared_secret: "secret"
 macaroon_secret_key: "secret"
 form_secret: "secret"
 
+# Syncthing secrets
+syncthing_gui_pass: ""
+
 # Coturn secrets
 coturn_secret_key: "secret"
 
@@ -268,7 +271,10 @@ enable_navidrome: yes
 enable_website: yes
 
 # SFTP read-only user
-enable_sftpr: yes
+enable_sftpr: no
+
+# Syncthing
+enable_syncthing: yes
 
 # Mailserver (local only)
 enable_mail: yes
