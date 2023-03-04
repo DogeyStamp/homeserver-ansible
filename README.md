@@ -32,8 +32,9 @@ This project was largely inspired by his own [infra](https://github.com/notthebe
 
 Install ansible. [Install guide](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html)
 
-Install python-hashlib. This is necessary for syncthing because for some reason
-it can't compute hashes for bcrypt.
+Install python-passlib. This is necessary for syncthing because for some reason
+Ansible can't compute hashes for bcrypt with the usual library.
+If you don't do this, you will not be able to log into Syncthing via web GUI.
 
 
 Clone the repo:
