@@ -6,48 +6,61 @@
   set_fact:
     fullroot: "{{ webroot }}/{{ path }}"
 
+- name: Create website deployment user
+  user:
+    name: "{{ web_username }}"
+
 - name: Install required packages
   community.general.pacman:
     name: 
-      - cpio
+      - git
+      - make
       - lowdown
+      - rsync
     state: present
-
-- name: Create site source folder
-  file:
-    owner: http
-    group: http
-    path: "/srv/web_source"
-    state: directory
-    recurse: yes
-  register: site_perm
 
 - name: Fetch site source
   git:
-    dest: "/srv/web_source"
+    dest: "/home/{{ web_username }}/website"
     repo: "{{ site_repo }}"
   register: site_source
-  become_user: http
+  become_user: "{{ web_username }}"
 
 - name: Make site directory in web root
   file:
     group: http
-    owner: http
+    owner: "{{ web_username }}"
     path: "{{ fullroot }}"
     state: directory
   register: site_folder
 
 - name: Deploy source to web root
-  shell:
-    cmd: "./ssg6 src {{ fullroot }} '{{ web_name }}' 'https://{{ path }}'"
-    chdir: /srv/web_source
-  when: site_source.changed or site_folder.changed or site_perm.changed
-  become_user: http
+  make:
+    chdir: "/home/{{ web_username }}/website"
+    target: deploy
+    params:
+      OUTPUT: "{{ fullroot }}"
+  when: site_source.changed or site_folder.changed
+  become_user: "{{ web_username }}"
+
+- name: Send deployment script
+  template:
+    src: deploy.sh.j2
+    dest: "/home/{{ web_username }}/deploy.sh"
+    mode: 0700
+    owner: "{{ web_username }}"
+
+- name: Tell cron to mail to root
+  cron:
+    user: "{{ web_username }}"
+    name: MAILTO
+    env: yes
+    job: root
 
 - name: Cronjob to deploy source
   cron:
-    user: http
+    user: "{{ web_username }}"
     name: "Update and deploy website source"
     minute: 0
-    hour: "*/4"
-    job: "git -C /srv/web_source/ pull && /srv/web_source/ssg6 /srv/web_source/src {{ fullroot }} '{{ web_name }}' 'https://{{ path }}'"
+    hour: "*/1"
+    job: "chronic /home/{{ web_username }}/deploy.sh"

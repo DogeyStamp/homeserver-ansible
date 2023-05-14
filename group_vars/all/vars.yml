@@ -22,7 +22,7 @@ username: dogeystamp
 
 # Git repos (could be localhost if Gitea is installed)
 dots_repo: http://localhost:3000/dogeystamp/dots.git
-site_repo: http://localhost:3000/dogeystamp/wb4.git
+site_repo: http://localhost:3000/dogeystamp/wb5.git
 
 # Drive with all the data stored on it (should be separate from OS drive)
 # This is the raw partition, and not the mapped crypt device
@@ -32,8 +32,8 @@ secondary_disk: /dev/sda1
 # This is the raw partition, and not the mapped crypt device
 backup_disk: /dev/sda2
 
-# Title used for the static website generator
-web_name: dogeystamp
+# Username for website deployment
+web_username: ianitor
 
 # Web root for nginx and other applications
 webroot: /srv/http
@@ -50,6 +50,8 @@ util_pack:
   - tmux
   - git
   - cronie
+  # for chronic
+  - moreutils
   - progress
   - rsync
   - man-db
