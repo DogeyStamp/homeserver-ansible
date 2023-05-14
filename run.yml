@@ -55,11 +55,6 @@
         - nameserver
       when: enable_nameserver
 
-    - role: services/sftp
-      tags:
-        - sftp
-      when: enable_sftpr
-
     - role: services/mail
       tags:
         - mail

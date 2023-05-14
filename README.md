@@ -17,7 +17,6 @@ This project was largely inspired by his own [infra](https://github.com/notthebe
 * Nginx webserver
 * MediaWiki farm
 * Navidrome music server
-* SFTP (not really a service, included in sshd)
 * Syncthing
 * Firewall (UFW)
 

@@ -20,9 +20,6 @@ admin_username: maestro
 # Username for unpriviledged user
 username: dogeystamp
 
-# Create an SFTP read-only user (leave blank to disable)
-sftp_ro_username: dogeystamp-mobile
-
 # Git repos (could be localhost if Gitea is installed)
 dots_repo: http://localhost:3000/dogeystamp/dots.git
 site_repo: http://localhost:3000/dogeystamp/wb4.git
@@ -269,9 +266,6 @@ enable_navidrome: yes
 
 # Personal website
 enable_website: yes
-
-# SFTP read-only user
-enable_sftpr: no
 
 # Syncthing
 enable_syncthing: yes
