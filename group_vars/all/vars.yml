@@ -258,10 +258,10 @@ enable_gitea: yes
 enable_synapse: yes
 
 # TURN server for Matrix VoIP
-enable_coturn: yes
+enable_coturn: no
 
 # MediaWiki
-enable_wiki: yes
+enable_wiki: no
 
 # Navidrome (music server)
 enable_navidrome: yes
