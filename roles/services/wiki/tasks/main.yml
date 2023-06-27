@@ -78,13 +78,21 @@
     line: "extension=pdo_sqlite"
   register: php_config
 
-- name: Change systemd unit file to allow access to dataroot
-  lineinfile:
-    path: /usr/lib/systemd/system/php-fpm.service
-    insertafter: "^PrivateDevices.*"
-    regexp: "^ReadWritePaths.*"
-    line: "ReadWritePaths={{ dataroot }}/mediawiki/"
-    state: present
+- name: Create systemd override dir
+  file:
+    path: /etc/systemd/system/php-fpm.service.d/
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Deploy systemd override conf
+  template:
+    src: php-fpm.service.j2
+    dest: /etc/systemd/system/php-fpm.service.d/override.conf
+    owner: root
+    group: root
+    mode: 0644
   register: php_config
 
 - name: Enable php service

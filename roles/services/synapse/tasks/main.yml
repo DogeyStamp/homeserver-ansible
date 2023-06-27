@@ -22,14 +22,22 @@
     dest: /etc/synapse/log.config
   notify: Restart synapse
 
-- name: Change systemd unit file to allow access to dataroot
-  lineinfile:
-    path: /usr/lib/systemd/system/synapse.service
-    insertafter: "^WorkingDirectory.*"
-    regexp: "^ReadWritePaths.*"
-    line: "ReadWritePaths={{ dataroot }}/synapse/"
-    state: present
-  notify: 
+- name: Create systemd override dir
+  file:
+    path: /etc/systemd/system/synapse.service.d/
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Deploy systemd override conf
+  template:
+    src: synapse.service.j2
+    dest: /etc/systemd/system/synapse.service.d/override.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify:
     - Run daemon-reload for synapse
     - Restart synapse
 

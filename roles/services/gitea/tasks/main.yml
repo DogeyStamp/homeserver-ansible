@@ -13,16 +13,24 @@
   set_fact:
     data_path: "{{ dataroot }}/gitea/"
 
-- name: Change systemd unit file to allow access to dataroot
-  lineinfile:
-    path: /usr/lib/systemd/system/gitea.service
-    insertafter: "^WorkingDirectory.*"
-    regexp: "^ReadWritePaths.*"
-    line: "ReadWritePaths={{ dataroot }}/gitea/"
-    state: present
+- name: Create systemd override dir
+  file:
+    path: /etc/systemd/system/gitea.service.d/
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Deploy systemd override conf
+  template:
+    src: gitea.service.j2
+    dest: /etc/systemd/system/gitea.service.d/override.conf
+    owner: root
+    group: root
+    mode: 0644
   notify:
-    - Restart gitea
     - Run daemon-reload for gitea
+    - Restart gitea
 
 - name: Find owner of data folder
   stat:
