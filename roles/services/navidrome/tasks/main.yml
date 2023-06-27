@@ -73,12 +73,23 @@
     line: "Environment=HOME={{ dataroot }}/navidrome/"
   notify: Run daemon-reload for Navidrome
 
-- name: Allow Navidrome to write in data directory
-  lineinfile:
-    dest: /usr/lib/systemd/system/navidrome.service
-    regexp: "^ReadWritePaths=.*"
-    line: "ReadWritePaths={{ dataroot }}/navidrome/"
-  notify: Run daemon-reload for Navidrome
+- name: Create systemd override dir
+  file:
+    path: /etc/systemd/system/navidrome.service.d/
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Deploy systemd override conf
+  template:
+    src: navidrome.service.j2
+    dest: /etc/systemd/system/navidrome.service.d/override.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - Run daemon-reload for Navidrome
 
 - name: Configure Navidrome
   template:
