@@ -12,6 +12,7 @@ RUN_USER = gitea
 RUN_MODE = prod
 
 GITEA_WORK_DIR                                 = {{ dataroot }}/gitea/repos
+WORK_PATH                                      = {{ dataroot }}/gitea/
 
 [project]
 ; Default templates for project boards
@@ -38,10 +39,6 @@ DEFAULT_PRIVATE                                = last
 DEFAULT_PUSH_CREATE_PRIVATE                    = true
 ; Global limit of repositories per user, applied at creation time. -1 means no limit
 MAX_CREATION_LIMIT                             = -1
-; Mirror sync queue length, increase if mirror syncing starts hanging
-MIRROR_QUEUE_LENGTH                            = 1000
-; Patch test queue length, increase if pull request patch testing starts hanging
-PULL_REQUEST_QUEUE_LENGTH                      = 1000
 ; Preferred Licenses to place at the top of the List
 ; The name here must match the filename in conf/license or custom/conf/license
 PREFERRED_LICENSES                             = Apache License 2.0,MIT License
@@ -66,8 +63,6 @@ DISABLED_REPO_UNITS                            =
 DEFAULT_REPO_UNITS                             = repo.code,repo.releases,repo.issues,repo.pulls,repo.wiki,repo.projects
 ; Prefix archive files by placing them in a directory named after the repository
 PREFIX_ARCHIVE_FILES                           = true
-; Disable the creation of new mirrors. Pre-existing mirrors remain valid.
-DISABLE_MIRRORS                                = false
 ; Disable migrating feature.
 DISABLE_MIGRATIONS                             = false
 ; The default branch name of new repositories
@@ -388,8 +383,6 @@ PPROF_DATA_PATH                       = data/tmp/pprof
 LANDING_PAGE                          = home
 ; Enables git-lfs support. true or false, default is false.
 LFS_START_SERVER                      = true
-; Where your lfs files reside, default is data/lfs.
-LFS_CONTENT_PATH                      = {{ dataroot }}/gitea/data/lfs
 ; LFS authentication secret, change this yourself
 LFS_JWT_SECRET                        = {{ lfs_jwt_secret }}
 ; LFS authentication validity period (in time.Duration), pushes taking longer than this may fail.
@@ -458,26 +451,9 @@ MAX_OPEN_CONNS      = 0
 [indexer]
 ; Issue indexer type, currently support: bleve, db or elasticsearch, default is bleve
 ISSUE_INDEXER_TYPE               = bleve
-; Issue indexer connection string, available when ISSUE_INDEXER_TYPE is elasticsearch
-ISSUE_INDEXER_CONN_STR           = http://elastic:changeme@localhost:9200
-; Issue indexer name, available when ISSUE_INDEXER_TYPE is elasticsearch
-ISSUE_INDEXER_NAME               = gitea_issues
 ; Issue indexer storage path, available when ISSUE_INDEXER_TYPE is bleve
 ISSUE_INDEXER_PATH               = indexers/issues.bleve
 ; Issue indexer queue, currently support: channel, levelqueue or redis, default is levelqueue
-ISSUE_INDEXER_QUEUE_TYPE         = levelqueue
-; When ISSUE_INDEXER_QUEUE_TYPE is levelqueue, this will be the path where the queue will be saved.
-; This can be overriden by `ISSUE_INDEXER_QUEUE_CONN_STR`.
-; default is indexers/issues.queue
-ISSUE_INDEXER_QUEUE_DIR          = indexers/issues.queue
-; When `ISSUE_INDEXER_QUEUE_TYPE` is `redis`, this will store the redis connection string.
-; When `ISSUE_INDEXER_QUEUE_TYPE` is `levelqueue`, this is a directory or additional options of
-; the form `leveldb://path/to/db?option=value&....`, and overrides `ISSUE_INDEXER_QUEUE_DIR`.
-ISSUE_INDEXER_QUEUE_CONN_STR     = addrs=127.0.0.1:6379 db=0
-; Batch queue number, default is 20
-ISSUE_INDEXER_QUEUE_BATCH_NUMBER = 20
-; Timeout the indexer if it takes longer than this to start.
-; Set to zero to disable timeout.
 STARTUP_TIMEOUT                  = 30s
 ; repo indexer by default disabled, since it uses a lot of disk space
 REPO_INDEXER_ENABLED             = false
@@ -489,7 +465,6 @@ REPO_INDEXER_PATH                = indexers/repos.bleve
 REPO_INDEXER_CONN_STR            = 
 ; Code indexer name, available when `REPO_INDEXER_TYPE` is elasticsearch
 REPO_INDEXER_NAME                = gitea_codes
-UPDATE_BUFFER_LEN                = 20
 MAX_FILE_SIZE                    = 1048576
 ; A comma separated list of glob patterns (see https://github.com/gobwas/glob) to include
 ; in the index; default is empty
@@ -497,42 +472,64 @@ REPO_INDEXER_INCLUDE             =
 ; A comma separated list of glob patterns to exclude from the index; ; default is empty
 REPO_INDEXER_EXCLUDE             = 
 
-[queue]
-; Specific queues can be individually configured with [queue.name]. [queue] provides defaults
-; 
-; General queue queue type, currently support: persistable-channel, channel, level, redis, dummy
-; default to persistable-channel
-TYPE              = persistable-channel
-; data-dir for storing persistable queues and level queues, individual queues will be named by their type
-DATADIR           = queues/
-; Default queue length before a channel queue will block
-LENGTH            = 20
-; Batch size to send for batched queues
-BATCH_LENGTH      = 20
-; Connection string for redis queues this will store the redis connection string.
-; When `TYPE` is `persistable-channel`, this provides a directory for the underlying leveldb
-; or additional options of the form `leveldb://path/to/db?option=value&....`, and will override `DATADIR`.
-CONN_STR          = addrs=127.0.0.1:6379 db=0
-; Provides the suffix of the default redis/disk queue name - specific queues can be overriden within in their [queue.name] sections.
-QUEUE_NAME        = _queue
-; Provides the suffix of the default redis/disk unique queue set name - specific queues can be overriden within in their [queue.name] sections.
-SET_NAME          = _unique
-; If the queue cannot be created at startup - level queues may need a timeout at startup - wrap the queue:
-WRAP_IF_NECESSARY = true
-; Attempt to create the wrapped queue at max
-MAX_ATTEMPTS      = 10
-; Timeout queue creation
-TIMEOUT           = 15m30s
-; Create a pool with this many workers
-WORKERS           = 1
-; Dynamically scale the worker pool to at this many workers
-MAX_WORKERS       = 10
-; Add boost workers when the queue blocks for BLOCK_TIMEOUT
-BLOCK_TIMEOUT     = 1s
-; Remove the boost workers after BOOST_TIMEOUT
-BOOST_TIMEOUT     = 5m
-; During a boost add BOOST_WORKERS
-BOOST_WORKERS     = 5
+;;[queue]
+;; Specific queues can be individually configured with [queue.name]. [queue] provides defaults
+;; 
+;; General queue queue type, currently support: persistable-channel, channel, level, redis, dummy
+;; default to persistable-channel
+;TYPE              = persistable-channel
+;; data-dir for storing persistable queues and level queues, individual queues will be named by their type
+;DATADIR           = queues/
+;; Default queue length before a channel queue will block
+;LENGTH            = 20
+;; Batch size to send for batched queues
+;BATCH_LENGTH      = 20
+;; Connection string for redis queues this will store the redis connection string.
+;; When `TYPE` is `persistable-channel`, this provides a directory for the underlying leveldb
+;; or additional options of the form `leveldb://path/to/db?option=value&....`, and will override `DATADIR`.
+;CONN_STR          = addrs=127.0.0.1:6379 db=0
+;; Provides the suffix of the default redis/disk queue name - specific queues can be overriden within in their [queue.name] sections.
+;QUEUE_NAME        = _queue
+;; Provides the suffix of the default redis/disk unique queue set name - specific queues can be overriden within in their [queue.name] sections.
+;SET_NAME          = _unique
+;; If the queue cannot be created at startup - level queues may need a timeout at startup - wrap the queue:
+;WRAP_IF_NECESSARY = true
+;; Attempt to create the wrapped queue at max
+;MAX_ATTEMPTS      = 10
+;; Timeout queue creation
+;TIMEOUT           = 15m30s
+;; Create a pool with this many workers
+;WORKERS           = 1
+;; Dynamically scale the worker pool to at this many workers
+;MAX_WORKERS       = 10
+;; Add boost workers when the queue blocks for BLOCK_TIMEOUT
+;BLOCK_TIMEOUT     = 1s
+;; Remove the boost workers after BOOST_TIMEOUT
+;BOOST_TIMEOUT     = 5m
+;; During a boost add BOOST_WORKERS
+;BOOST_WORKERS     = 5
+;
+;[queue.issue_indexer]
+;TYPE         = levelqueue
+;; When ISSUE_INDEXER_QUEUE_TYPE is levelqueue, this will be the path where the queue will be saved.
+;; This can be overriden by `ISSUE_INDEXER_QUEUE_CONN_STR`.
+;; default is indexers/issues.queue
+;DATADIR          = indexers/issues.queue
+;; When `ISSUE_INDEXER_QUEUE_TYPE` is `redis`, this will store the redis connection string.
+;; When `ISSUE_INDEXER_QUEUE_TYPE` is `levelqueue`, this is a directory or additional options of
+;; the form `leveldb://path/to/db?option=value&....`, and overrides `ISSUE_INDEXER_QUEUE_DIR`.
+;CONN_STR     = addrs=127.0.0.1:6379 db=0
+;; Batch queue number, default is 20
+;BATCH_LENGTH = 20
+;
+;[queue.notification-service]
+;TYPE         = bleve
+;; When ISSUE_INDEXER_QUEUE_TYPE is levelqueue, this will be the path where the queue will be saved.
+;; This can be overriden by `ISSUE_INDEXER_QUEUE_CONN_STR`.
+;; default is indexers/issues.queue
+;DATADIR          = indexers/notifications.queue
+;CONN_STR     = addrs=127.0.0.1:6379 db=0
+;BATCH_LENGTH = 20
 
 [admin]
 ; Disallow regular (non-admin) users from creating organizations.
@@ -630,7 +627,7 @@ REGISTER_EMAIL_CONFIRM                        = false
 REGISTER_MANUAL_CONFIRM                       = false
 ; List of domain names that are allowed to be used to register on a Gitea instance
 ; gitea.io,example.com
-EMAIL_DOMAIN_WHITELIST                        = 
+EMAIL_DOMAIN_ALLOWLIST                        = 
 ; Comma-separated list of domain names that are not allowed to be used to register on a Gitea instance
 EMAIL_DOMAIN_BLOCKLIST                        = 
 ; Disallow registration, only allow admins to create accounts.
@@ -722,49 +719,6 @@ PAGING_NUM      = 10
 PROXY_URL       = 
 ; Comma separated list of host names requiring proxy. Glob patterns (*) are accepted; use ** to match all hosts.
 PROXY_HOSTS     = 
-
-[mailer]
-ENABLED            = false
-; Buffer length of channel, keep it as it is if you don't know what it is.
-SEND_BUFFER_LEN    = 100
-; Prefix displayed before subject in mail
-SUBJECT_PREFIX     = 
-; Mail server
-; Gmail: smtp.gmail.com:587
-; QQ: smtp.qq.com:465
-; Using STARTTLS on port 587 is recommended per RFC 6409.
-; Note, if the port ends with "465", SMTPS will be used.
-HOST               = 
-; Disable HELO operation when hostnames are different.
-DISABLE_HELO       = 
-; Custom hostname for HELO operation, if no value is provided, one is retrieved from system.
-HELO_HOSTNAME      = 
-; Whether or not to skip verification of certificates; `true` to disable verification. This option is unsafe. Consider adding the certificate to the system trust store instead.
-SKIP_VERIFY        = false
-; Use client certificate
-USE_CERTIFICATE    = false
-CERT_FILE          = custom/mailer/cert.pem
-KEY_FILE           = custom/mailer/key.pem
-; Should SMTP connect with TLS, (if port ends with 465 TLS will always be used.)
-; If this is false but STARTTLS is supported the connection will be upgraded to TLS opportunistically.
-IS_TLS_ENABLED     = false
-; Mail from address, RFC 5322. This can be just an email address, or the `"Name" <email@example.com>` format
-FROM               = 
-; Mailer user name and password
-; Please Note: Authentication is only supported when the SMTP server communication is encrypted with TLS (this can be via STARTTLS) or `HOST=localhost`.
-USER               = 
-; Use PASSWD = `your password` for quoting if you use special characters in the password.
-PASSWD             = 
-; Send mails as plain text
-SEND_AS_PLAIN_TEXT = false
-; Set Mailer Type (either SMTP, sendmail or dummy to just send to the log)
-MAILER_TYPE        = smtp
-; Specify an alternative sendmail binary
-SENDMAIL_PATH      = sendmail
-; Specify any extra sendmail arguments
-SENDMAIL_ARGS      = 
-; Timeout for Sendmail
-SENDMAIL_TIMEOUT   = 5m
 
 [cache]
 ; if the cache enabled
@@ -875,83 +829,6 @@ FORMAT              =
 ; Location the UI time display i.e. Asia/Shanghai
 ; Empty means server's location setting
 DEFAULT_UI_LOCATION = 
-
-[log]
-ROOT_PATH           = /var/log/gitea/
-; Either "console", "file", "conn", "smtp" or "database", default is "console"
-; Use comma to separate multiple modes, e.g. "console, file"
-MODE                = console
-; Buffer length of the channel, keep it as it is if you don't know what it is.
-BUFFER_LEN          = 10000
-; Either "Trace", "Debug", "Info", "Warn", "Error", "Critical", default is "Info"
-ROUTER_LOG_LEVEL    = Info
-ROUTER              = console
-ENABLE_ACCESS_LOG   = false
-{% raw %}
-ACCESS_LOG_TEMPLATE = {{.Ctx.RemoteAddr}} - {{.Identity}} {{.Start.Format "[02/Jan/2006:15:04:05 -0700]" }} "{{.Ctx.Req.Method}} {{.Ctx.Req.URL.RequestURI}} {{.Ctx.Req.Proto}}" {{.ResponseWriter.Status}} {{.ResponseWriter.Size}} "{{.Ctx.Req.Referer}}\" \"{{.Ctx.Req.UserAgent}}"
-{% endraw %}
-ACCESS              = file
-; Either "Trace", "Debug", "Info", "Warn", "Error", "Critical", default is "Trace"
-LEVEL               = info
-; Either "Trace", "Debug", "Info", "Warn", "Error", "Critical", default is "None"
-STACKTRACE_LEVEL    = None
-
-; Generic log modes
-[log.x]
-FLAGS      = stdflags
-EXPRESSION = 
-PREFIX     = 
-COLORIZE   = false
-
-; For "console" mode only
-[log.console]
-LEVEL  = Info
-STDERR = false
-
-; For "file" mode only
-[log.file]
-LEVEL             = 
-; Set the file_name for the logger. If this is a relative path this
-; will be relative to ROOT_PATH
-FILE_NAME         = 
-; This enables automated log rotate(switch of following options), default is true
-LOG_ROTATE        = true
-; Max size shift of a single file, default is 28 means 1 << 28, 256MB
-MAX_SIZE_SHIFT    = 28
-; Segment log daily, default is true
-DAILY_ROTATE      = true
-; delete the log file after n days, default is 7
-MAX_DAYS          = 7
-; compress logs with gzip
-COMPRESS          = true
-; compression level see godoc for compress/gzip
-COMPRESSION_LEVEL = -1
-
-; For "conn" mode only
-[log.conn]
-LEVEL            = 
-; Reconnect host for every single message, default is false
-RECONNECT_ON_MSG = false
-; Try to reconnect when connection is lost, default is false
-RECONNECT        = false
-; Either "tcp", "unix" or "udp", default is "tcp"
-PROTOCOL         = tcp
-; Host address
-ADDR             = 
-
-; For "smtp" mode only
-[log.smtp]
-LEVEL     = 
-; Name displayed in mail title, default is "Diagnostic message from server"
-SUBJECT   = Diagnostic message from server
-; Mail server
-HOST      = 
-; Mailer user name and password
-USER      = 
-; Use PASSWD = `your password` for quoting if you use special characters in the password.
-PASSWD    = 
-; Receivers, can be one or more, e.g. 1@example.com,2@example.com
-RECEIVERS = 
 
 [cron]
 ; Enable running all cron tasks periodically with default settings.
@@ -1156,6 +1033,7 @@ GC      = 60
 DEFAULT_INTERVAL = 8h
 ; Min interval as a duration must be > 1m
 MIN_INTERVAL     = 10m
+ENABLED          = false
 
 [api]
 ; Enables Swagger. True or false; default is true.
@@ -1206,7 +1084,7 @@ SHOW_FOOTER_VERSION            = true
 ; Show template execution time in the footer
 SHOW_FOOTER_TEMPLATE_LOAD_TIME = true
 
-[markup.sanitizer.1]
+; [markup.sanitizer.1]
 
 ; The following keys can appear once to define a sanitation policy rule.
 ; This section can appear multiple times by adding a unique alphanumeric suffix to define multiple rules.
@@ -1229,14 +1107,14 @@ ENABLED = false
 ; If you want to add authorization, specify a token here
 TOKEN   = 
 
-[task]
-; Task queue type, could be `channel` or `redis`.
-QUEUE_TYPE     = channel
-; Task queue length, available only when `QUEUE_TYPE` is `channel`.
-QUEUE_LENGTH   = 1000
+[queue.task]
 ; Task queue connection string, available only when `QUEUE_TYPE` is `redis`.
+CONN_STR = addrs=127.0.0.1:6379 db=0
+; Task queue type, could be `channel` or `redis`.
+TYPE     = channel
+; Task queue length, available only when `QUEUE_TYPE` is `channel`.
 ; If there is a password of redis, use `addrs=127.0.0.1:6379 password=123 db=0`.
-QUEUE_CONN_STR = addrs=127.0.0.1:6379 db=0
+LENGTH   = 1000
 
 [migrations]
 ; Max attempts per http/https request on migrations.
@@ -1260,4 +1138,5 @@ STORAGE_TYPE = local
 ; lfs storage will override storage
 [lfs]
 STORAGE_TYPE = local
-
+; Where your lfs files reside, default is data/lfs.
+PATH               = {{ dataroot }}/gitea/data/lfs
