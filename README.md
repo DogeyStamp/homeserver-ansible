@@ -1,3 +1,5 @@
+**IMPORTANT:** This repository is deprecated in favor of [homeserver-iac](https://github.com/dogeystamp/homeserver-iac), a major rewrite.
+
 # Homeserver Ansible playbook 
 
 This is the Ansible playbook I use to automate installation and configuration of the services on my homeserver.
